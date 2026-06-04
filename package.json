@@ -1,0 +1,17 @@
+{
+  "name": "fixture-mundial-2026",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fixture interactivo del Mundial de Fútbol 2026 con horarios en tu zona horaria.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^16.2.7",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}

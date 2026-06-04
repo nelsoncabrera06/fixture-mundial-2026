@@ -1,0 +1,100 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import TimezonePicker from "../components/TimezonePicker";
+import GroupStage from "../components/GroupStage";
+import Knockout from "../components/Knockout";
+import { DEFAULT_TZ } from "../lib/timezone";
+
+const TZ_STORAGE_KEY = "fixture2026.tz";
+
+export default function Home() {
+  const [tab, setTab] = useState("grupos");
+  const [tz, setTz] = useState(DEFAULT_TZ);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Recupera la zona guardada (solo en cliente, evita desajuste de hidratación).
+  useEffect(() => {
+    const saved = window.localStorage.getItem(TZ_STORAGE_KEY);
+    if (saved) setTz(saved);
+  }, []);
+
+  const changeTz = (value) => {
+    setTz(value);
+    window.localStorage.setItem(TZ_STORAGE_KEY, value);
+  };
+
+  // Secciones de la barra lateral. Agregá más ítems acá a futuro.
+  const sections = [
+    { id: "grupos", label: "Fase de grupos", icon: "🏟️" },
+    { id: "playoff", label: "Playoffs", icon: "🏆" },
+  ];
+
+  return (
+    <div className={`layout ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
+      <aside className="sidebar">
+        <div className="brand">
+          <span className="brand-mark">⚽</span>
+          <div>
+            <div className="brand-title">Mundial 2026</div>
+            <div className="brand-sub">Canadá · México · EE.UU.</div>
+          </div>
+        </div>
+        <nav className="nav">
+          {sections.map((s) => (
+            <button
+              key={s.id}
+              className={`nav-item ${tab === s.id ? "active" : ""}`}
+              onClick={() => setTab(s.id)}
+            >
+              <span className="nav-icon">{s.icon}</span>
+              {s.label}
+            </button>
+          ))}
+        </nav>
+        <button
+          className="sidebar-hide"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Ocultar menú"
+          title="Ocultar menú"
+        >
+          <span className="sidebar-hide-arrow">←</span>
+        </button>
+      </aside>
+
+      <main className="main">
+        <div className={`main-inner ${tab === "playoff" ? "main-inner--wide" : ""}`}>
+          <div className="topbar">
+            {!sidebarOpen && (
+              <button
+                className="sidebar-toggle"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Mostrar menú"
+                title="Mostrar menú"
+              >
+                ☰
+              </button>
+            )}
+            <header className="header">
+              <h1>{sections.find((s) => s.id === tab)?.label}</h1>
+              <div className="sub">Del 11 de junio al 19 de julio de 2026</div>
+            </header>
+          </div>
+
+          <TimezonePicker tz={tz} onChange={changeTz} />
+
+          {tab === "grupos" ? <GroupStage tz={tz} /> : <Knockout tz={tz} />}
+
+          <footer className="footer">
+            Horarios orientativos convertidos a tu zona horaria. Equipos y grupos
+            confirmados; fechas, sedes y horarios pueden ajustarse — verificá en{" "}
+            <a href="https://www.fifa.com/es" target="_blank" rel="noreferrer">
+              fifa.com
+            </a>
+            .
+          </footer>
+        </div>
+      </main>
+    </div>
+  );
+}

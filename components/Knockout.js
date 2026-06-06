@@ -94,7 +94,7 @@ export default function Knockout({ tz }) {
               {h}
             </div>
           ))}
-          <div className="bk-head bk-head-final">🏆 Final</div>
+          <div className="bk-head bk-head-final" aria-hidden="true"></div>
           {rightHeaders.map((h, i) => (
             <div className="bk-head" key={`rh-${i}`}>
               {h}
@@ -108,12 +108,17 @@ export default function Knockout({ tz }) {
           </div>
 
           <div className="bk-center">
-            <div className="bk-final-wrap">
-              <MatchCard match={final} tz={tz} />
+            <div className="bk-final">
+              <div className="bk-final-label">🏆 Final</div>
+              <div className="bk-final-wrap">
+                <MatchCard match={final} tz={tz} />
+              </div>
             </div>
             <div className="bk-third">
+              <div className="bk-third-wrap">
+                <MatchCard match={third} tz={tz} />
+              </div>
               <div className="bk-third-label">3.º puesto</div>
-              <MatchCard match={third} tz={tz} />
             </div>
           </div>
 

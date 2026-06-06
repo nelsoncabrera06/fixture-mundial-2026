@@ -482,51 +482,74 @@ body {
   bottom: 50%;
 }
 
-/* Centro: Final + tercer puesto */
+/* Centro: Final arriba, semifinales al medio, 3.º puesto abajo.
+   El nivel de las semifinales coincide con el centro vertical (top: 50%);
+   un caño en cruz conecta ambas semis con la Final (arriba) y el 3.º (abajo). */
 .bk-center {
+  --center-gap: 150px; /* separación entre Final y 3.º puesto (las semis caen en el medio) */
   flex: 0 0 var(--center-w);
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--center-gap);
 }
-.bk-final-wrap {
-  width: var(--card-w);
+/* Brazo horizontal a la altura de las semifinales, hacia ambos lados */
+.bk-center::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--line);
+  transform: translateY(-50%);
+}
+
+.bk-final,
+.bk-third {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--card-w);
+}
+.bk-final-label {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 8px;
 }
 .bk-final-wrap .bk-match {
   border-color: var(--accent);
 }
-/* Líneas que conectan las dos semifinales con la Final */
-.bk-final-wrap::before,
-.bk-final-wrap::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: calc((var(--center-w) - var(--card-w)) / 2);
-  height: 2px;
-  background: var(--line);
-}
-.bk-final-wrap::before {
-  right: 100%;
-}
-.bk-final-wrap::after {
-  left: 100%;
-}
 .bk-third {
-  position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: var(--card-w);
-  opacity: 0.85;
+  opacity: 0.9;
 }
 .bk-third-label {
   text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--muted);
-  margin-bottom: 8px;
+  margin-top: 8px;
+}
+/* Caño vertical: de la Final baja al centro, y del centro baja al 3.º puesto */
+.bk-final::after,
+.bk-third::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  height: calc(var(--center-gap) / 2);
+  background: var(--line);
+  transform: translateX(-50%);
+}
+.bk-final::after {
+  top: 100%;
+}
+.bk-third::before {
+  bottom: 100%;
 }
 
 /* En pantallas chicas el cuadro se desplaza horizontalmente */

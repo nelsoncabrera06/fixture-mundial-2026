@@ -7,6 +7,7 @@ import {
   login,
   register,
   setUserPrefs,
+  signInWithGoogle as authSignInWithGoogle,
 } from "../lib/auth";
 
 const AuthContext = createContext(null);
@@ -50,6 +51,9 @@ export function AuthProvider({ children }) {
     return u;
   };
 
+  // Dispara el flujo OAuth de Google (redirige el navegador a Google).
+  const signInWithGoogle = () => authSignInWithGoogle();
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -70,7 +74,15 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, ready, signIn, signOut, refresh, updatePrefs }}
+      value={{
+        user,
+        ready,
+        signIn,
+        signInWithGoogle,
+        signOut,
+        refresh,
+        updatePrefs,
+      }}
     >
       {children}
     </AuthContext.Provider>

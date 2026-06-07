@@ -51,7 +51,11 @@ export default function Home() {
     { id: "playoff", label: "Playoffs", icon: "🏆" },
     { id: "miequipo", label: "Mi equipo", icon: "⭐" },
     { id: "favoritos", label: "Favoritos", icon: "❤️" },
-    { id: "cuenta", label: "Mi cuenta", icon: "👤" },
+    {
+      id: "cuenta",
+      label: user ? "Mi cuenta" : "Login",
+      icon: "👤",
+    },
   ];
   // La sección Admin solo aparece para usuarios con rol admin.
   if (user?.role === "admin") {

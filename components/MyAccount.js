@@ -27,10 +27,10 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
     return (
       <div className="locked-screen">
         <div className="locked-icon">👤</div>
-        <h2>Iniciá sesión</h2>
+        <h2>Iniciá sesión o registrate</h2>
         <p>Accedé a tu cuenta para gestionar tu perfil.</p>
         <button className="auth-submit" onClick={() => setAuthOpen(true)}>
-          Iniciar sesión
+          Iniciar sesión o registrarse
         </button>
         <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       </div>

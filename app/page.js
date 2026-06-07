@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import TimezonePicker from "../components/TimezonePicker";
 import GroupStage from "../components/GroupStage";
 import Knockout from "../components/Knockout";
+import MyTeam from "../components/MyTeam";
+import Favorites from "../components/Favorites";
+import MyAccount from "../components/MyAccount";
 import { DEFAULT_TZ } from "../lib/timezone";
+
 
 const TZ_STORAGE_KEY = "fixture2026.tz";
 
@@ -12,11 +16,14 @@ export default function Home() {
   const [tab, setTab] = useState("grupos");
   const [tz, setTz] = useState(DEFAULT_TZ);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [myTeam, setMyTeam] = useState("Argentina");
 
-  // Recupera la zona guardada (solo en cliente, evita desajuste de hidratación).
+  // Recupera la zona guardada y el equipo (solo en cliente, evita desajuste de hidratación).
   useEffect(() => {
     const saved = window.localStorage.getItem(TZ_STORAGE_KEY);
     if (saved) setTz(saved);
+    const savedTeam = window.localStorage.getItem("fixture2026.myteam");
+    if (savedTeam) setMyTeam(savedTeam);
   }, []);
 
   const changeTz = (value) => {
@@ -28,6 +35,9 @@ export default function Home() {
   const sections = [
     { id: "grupos", label: "Fase de grupos", icon: "🏟️" },
     { id: "playoff", label: "Playoffs", icon: "🏆" },
+    { id: "miequipo", label: "Mi equipo", icon: "⭐" },
+    { id: "favoritos", label: "Favoritos", icon: "❤️" },
+    { id: "cuenta", label: "Mi cuenta", icon: "👤" },
   ];
 
   return (
@@ -81,9 +91,11 @@ export default function Home() {
             </header>
           </div>
 
-          <TimezonePicker tz={tz} onChange={changeTz} />
-
-          {tab === "grupos" ? <GroupStage tz={tz} /> : <Knockout tz={tz} />}
+          {tab === "grupos" && <GroupStage tz={tz} />}
+          {tab === "playoff" && <Knockout tz={tz} />}
+          {tab === "miequipo" && <MyTeam tz={tz} />}
+          {tab === "favoritos" && <Favorites tz={tz} />}
+          {tab === "cuenta" && <MyAccount myTeam={myTeam} tz={tz} onTzChange={changeTz} />}
 
           <footer className="footer">
             Horarios orientativos convertidos a tu zona horaria. Equipos y grupos

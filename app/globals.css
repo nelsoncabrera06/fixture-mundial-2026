@@ -598,3 +598,458 @@ body {
     padding: 18px 14px 56px;
   }
 }
+
+/* ── Mi equipo / Favoritos ─────────────────────────────────── */
+.myteam-container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.myteam-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.myteam-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.myteam-flag {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.myteam-label h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.btn-change {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-change:hover {
+  opacity: 0.85;
+}
+
+.team-picker {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.picker-hint {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px;
+}
+
+.picker-item {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.picker-item:hover {
+  background: var(--surface);
+}
+.picker-item.selected {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-weight: 600;
+}
+
+.myteam-matches {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.match--highlight {
+  border-left: 3px solid var(--accent);
+}
+
+.my-team-name {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.group-badge-small {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.no-matches {
+  color: var(--muted);
+  text-align: center;
+  padding: 40px 0;
+  font-size: 0.9rem;
+}
+
+/* ── Mi equipo - tabs internos ────────────────────────────── */
+.myteam-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+
+.myteam-tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+.myteam-tab:hover {
+  color: var(--fg);
+}
+.myteam-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* ── Camino al título ─────────────────────────────────────── */
+.scenario-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.scenario-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--fg);
+}
+.scenario-btn:hover {
+  border-color: var(--accent);
+}
+.scenario-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.path-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.path-step {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.step-connector {
+  display: flex;
+  justify-content: center;
+  height: 20px;
+}
+.step-line {
+  width: 2px;
+  height: 100%;
+  background: var(--border);
+}
+
+.path-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--accent);
+  transition: transform 0.1s;
+}
+.path-card--final {
+  border-left-color: gold;
+  background: color-mix(in srgb, gold 6%, var(--surface));
+}
+
+.path-round {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.path-round-icon {
+  font-size: 1rem;
+}
+.path-round-name {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.path-team {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+.path-vs {
+  color: var(--muted);
+  margin: 0 4px;
+}
+.path-opp {
+  color: var(--fg);
+}
+.path-tbd {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.path-when, .path-venue {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.playoff-path-container {
+  max-width: 560px;
+}
+
+/* ── Favoritos - layout lista + detalle ───────────────────── */
+.favs-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.favs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.favs-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: left;
+  transition: all 0.15s;
+  color: var(--fg);
+}
+.favs-list-item:hover {
+  border-color: var(--accent);
+}
+.favs-list-item.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  font-weight: 700;
+}
+
+.favs-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.favs-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favs-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .favs-layout {
+    flex-direction: column;
+  }
+  .favs-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: 0;
+    width: 100%;
+  }
+  .favs-list-item {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+  .favs-name {
+    display: none;
+  }
+  .favs-flag {
+    font-size: 1.5rem;
+  }
+}
+
+/* ── Mi cuenta ────────────────────────────────────────────── */
+.account-container {
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.account-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.account-row:last-child {
+  border-bottom: none;
+}
+
+.account-label {
+  font-size: 0.83rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.account-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.account-dev-badge {
+  font-size: 0.75rem;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+
+/* ── Timezone picker compacto ─────────────────────────────── */
+.tz-compact {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.tz-chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.tz-chip:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
+.tz-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.tz-dropdown select {
+  display: block;
+  border: none;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  min-width: 220px;
+  outline: none;
+  cursor: pointer;
+}
+
+.account-row--select {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.account-tz-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.85rem;
+  padding: 5px 8px;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+}

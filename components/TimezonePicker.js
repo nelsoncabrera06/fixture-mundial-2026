@@ -1,26 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import { TIMEZONES, tzLabel } from "../lib/timezone";
 
 export default function TimezonePicker({ tz, onChange }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <div className="tz-banner">
-      <div className="tz-text">
-        🕒 Los partidos se juegan en la hora local de cada sede (EE.UU., México y
-        Canadá abarcan varias zonas). Acá los ves convertidos a tu hora:{" "}
-        <strong>{tzLabel(tz)}</strong>.
-      </div>
-      <select
-        aria-label="Elegí tu zona horaria"
-        value={tz}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {TIMEZONES.map((t) => (
-          <option key={t.value} value={t.value}>
-            {t.label}
-          </option>
-        ))}
-      </select>
+    <div className="tz-compact">
+      <button className="tz-chip" onClick={() => setOpen((v) => !v)}>
+        🕒 {tzLabel(tz)} {open ? "▲" : "▼"}
+      </button>
+
+      {open && (
+        <div className="tz-dropdown">
+          <select
+            aria-label="Elegí tu zona horaria"
+            value={tz}
+            onChange={(e) => { onChange(e.target.value); setOpen(false); }}
+            size={6}
+          >
+            {TIMEZONES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
     </div>
   );
 }

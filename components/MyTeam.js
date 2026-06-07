@@ -5,8 +5,9 @@ import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag, FLAGS } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import MyTeamPlayoff from "./MyTeamPlayoff";
+import { useAuth } from "./AuthContext";
+import AuthModal from "./AuthModal";
 
-const STORAGE_KEY = "fixture2026.myteam";
 const DEFAULT_TEAM = "Argentina";
 
 function TeamLabel({ name }) {
@@ -18,26 +19,39 @@ function TeamLabel({ name }) {
 }
 
 export default function MyTeam({ tz }) {
-  const [myTeam, setMyTeam] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.localStorage.getItem(STORAGE_KEY) || DEFAULT_TEAM;
-    }
-    return DEFAULT_TEAM;
-  });
+  const { user, ready, updatePrefs } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
 
   const [picking, setPicking] = useState(false);
   const [section, setSection] = useState("grupos");
 
+  // Hasta saber si hay sesión, no renderizamos nada (evita parpadeo).
+  if (!ready) return null;
+
+  if (!user) {
+    return (
+      <div className="locked-screen">
+        <div className="locked-icon">🔒</div>
+        <h2>Iniciá sesión para ver tu equipo</h2>
+        <p>Elegí tu selección favorita y seguí todos sus partidos.</p>
+        <button className="auth-submit" onClick={() => setAuthOpen(true)}>
+          Iniciar sesión
+        </button>
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      </div>
+    );
+  }
+
+  const myTeam = user.team || DEFAULT_TEAM;
   const allTeams = Object.keys(FLAGS).sort();
 
   const matches = GROUP_MATCHES.filter(
     (m) => m.home === myTeam || m.away === myTeam
   ).sort((a, b) => kickoff(a) - kickoff(b));
 
-  const handleSelect = (team) => {
-    setMyTeam(team);
-    window.localStorage.setItem(STORAGE_KEY, team);
+  const handleSelect = async (team) => {
     setPicking(false);
+    await updatePrefs({ team });
   };
 
   return (

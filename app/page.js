@@ -7,28 +7,42 @@ import Knockout from "../components/Knockout";
 import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
 import MyAccount from "../components/MyAccount";
+import Admin from "../components/Admin";
+import { useAuth } from "../components/AuthContext";
 import { DEFAULT_TZ } from "../lib/timezone";
 
 
 const TZ_STORAGE_KEY = "fixture2026.tz";
 
 export default function Home() {
+  const { user, updatePrefs } = useAuth();
   const [tab, setTab] = useState("grupos");
   const [tz, setTz] = useState(DEFAULT_TZ);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [myTeam, setMyTeam] = useState("Argentina");
 
-  // Recupera la zona guardada y el equipo (solo en cliente, evita desajuste de hidratación).
+  // El equipo mostrado en "Mi cuenta" sale del registro del usuario.
+  const myTeam = user?.team || "Argentina";
+
+  // Recupera la zona guardada (solo en cliente, evita desajuste de hidratación).
   useEffect(() => {
     const saved = window.localStorage.getItem(TZ_STORAGE_KEY);
     if (saved) setTz(saved);
-    const savedTeam = window.localStorage.getItem("fixture2026.myteam");
-    if (savedTeam) setMyTeam(savedTeam);
   }, []);
+
+  // Con sesión activa, la zona horaria guardada del usuario tiene prioridad.
+  useEffect(() => {
+    if (user?.timezone) setTz(user.timezone);
+  }, [user]);
+
+  // Si el usuario deja de ser admin (logout) estando en la pestaña Admin, salir.
+  useEffect(() => {
+    if (tab === "admin" && user?.role !== "admin") setTab("grupos");
+  }, [tab, user]);
 
   const changeTz = (value) => {
     setTz(value);
     window.localStorage.setItem(TZ_STORAGE_KEY, value);
+    if (user) updatePrefs({ timezone: value });
   };
 
   // Secciones de la barra lateral. Agregá más ítems acá a futuro.
@@ -39,6 +53,10 @@ export default function Home() {
     { id: "favoritos", label: "Favoritos", icon: "❤️" },
     { id: "cuenta", label: "Mi cuenta", icon: "👤" },
   ];
+  // La sección Admin solo aparece para usuarios con rol admin.
+  if (user?.role === "admin") {
+    sections.push({ id: "admin", label: "Admin", icon: "🛡️" });
+  }
 
   return (
     <div className={`layout ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
@@ -96,6 +114,7 @@ export default function Home() {
           {tab === "miequipo" && <MyTeam tz={tz} />}
           {tab === "favoritos" && <Favorites tz={tz} />}
           {tab === "cuenta" && <MyAccount myTeam={myTeam} tz={tz} onTzChange={changeTz} />}
+          {tab === "admin" && <Admin />}
 
           <footer className="footer">
             Horarios orientativos convertidos a tu zona horaria. Equipos y grupos

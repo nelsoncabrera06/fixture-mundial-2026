@@ -9,6 +9,10 @@
   --accent: #00d68f;
   --accent-2: #ffd23f;
   --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  /* Alias usados por las vistas de Mi equipo / Favoritos / Mi cuenta.
+     Faltaban en :root y rompían el render en Firefox/Safari/incógnito. */
+  --surface: #16203c;
+  --fg: #eef2ff;
 }
 
 * {
@@ -683,7 +687,7 @@ body {
 }
 .picker-item.selected {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  background: rgba(0, 214, 143, 0.12);
   font-weight: 600;
 }
 
@@ -805,7 +809,7 @@ body {
 }
 .path-card--final {
   border-left-color: gold;
-  background: color-mix(in srgb, gold 6%, var(--surface));
+  background: #242b38;
 }
 
 .path-round {
@@ -885,7 +889,7 @@ body {
 }
 .favs-list-item.active {
   border-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  background: rgba(0, 214, 143, 0.12);
   font-weight: 700;
 }
 
@@ -1010,7 +1014,7 @@ body {
   transition: background 0.15s;
 }
 .tz-chip:hover {
-  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  background: #143244;
 }
 
 .tz-dropdown {
@@ -1052,4 +1056,369 @@ body {
   cursor: pointer;
   flex: 1;
   min-width: 0;
+}
+
+/* ── Autenticación: pantalla bloqueada ────────────────────── */
+.locked-screen {
+  max-width: 420px;
+  margin: 40px auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 40px 28px;
+}
+.locked-icon {
+  font-size: 2.5rem;
+}
+.locked-screen h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.locked-screen p {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* ── Autenticación: modal ─────────────────────────────────── */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 18, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.auth-modal {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 28px 24px 24px;
+}
+
+.auth-close {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.auth-close:hover {
+  color: var(--fg);
+}
+
+.auth-title {
+  margin: 0 0 16px;
+  font-size: 1.25rem;
+  text-align: center;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 4px;
+}
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.auth-tab.active {
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.auth-field span {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.auth-field input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.9rem;
+  padding: 9px 11px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.auth-field input:focus {
+  border-color: var(--accent);
+}
+
+.auth-error {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 0.82rem;
+}
+
+.auth-submit {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 11px 18px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.auth-submit:hover {
+  opacity: 0.88;
+}
+
+/* ── Mi cuenta: acciones ──────────────────────────────────── */
+.account-role-badge {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #0b1020;
+  background: var(--accent-2);
+  border-radius: 6px;
+  padding: 2px 6px;
+  vertical-align: middle;
+}
+
+.account-btn {
+  width: 100%;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 11px 16px;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+}
+.account-btn:hover {
+  opacity: 0.88;
+}
+.account-btn--ghost {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--fg);
+}
+.account-btn--ghost:hover {
+  border-color: var(--accent);
+  opacity: 1;
+}
+.account-btn--danger {
+  background: transparent;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+.account-btn--danger:hover {
+  background: #ff6b6b;
+  color: #fff;
+  opacity: 1;
+}
+
+.account-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.account-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.account-msg-ok {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.82rem;
+  text-align: center;
+}
+.account-msg-error {
+  margin: 0;
+  color: #ff6b6b;
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+.account-danger-box {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid #ff6b6b;
+  border-radius: 12px;
+  padding: 16px;
+}
+.account-danger-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.account-danger-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 0.9rem;
+  padding: 9px 11px;
+  outline: none;
+}
+.account-danger-input:focus {
+  border-color: #ff6b6b;
+}
+
+/* ── Admin: tabla de usuarios ─────────────────────────────── */
+.admin-container {
+  width: 100%;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  min-width: 640px;
+}
+
+.admin-table thead th {
+  text-align: left;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: var(--bg-soft);
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.admin-th-actions {
+  text-align: right;
+}
+
+.admin-table tbody td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.admin-table tbody tr:hover {
+  background: var(--card-hover);
+}
+
+.admin-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--fg);
+  font-size: 0.85rem;
+  padding: 6px 8px;
+  outline: none;
+}
+.admin-input:focus {
+  border-color: var(--accent);
+}
+
+.admin-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+.admin-btn {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 11px;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s;
+}
+.admin-btn:hover {
+  opacity: 0.88;
+}
+.admin-btn--ghost {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--fg);
+}
+.admin-btn--ghost:hover {
+  border-color: var(--accent);
+  opacity: 1;
+}
+.admin-btn--danger {
+  background: transparent;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+.admin-btn--danger:hover {
+  background: #ff6b6b;
+  color: #fff;
+  opacity: 1;
+}
+
+.admin-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px 0;
+}
+
+.admin-readonly {
+  color: var(--muted);
+  font-size: 0.82rem;
 }

@@ -5,6 +5,8 @@ import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag, FLAGS } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import MyTeamPlayoff from "./MyTeamPlayoff";
+import { useAuth } from "./AuthContext";
+import AuthModal from "./AuthModal";
 
 const STORAGE_KEY = "fixture2026.favorites";
 const ACTIVE_KEY = "fixture2026.favorites.active";
@@ -18,6 +20,9 @@ function TeamLabel({ name }) {
 }
 
 export default function Favorites({ tz }) {
+  const { user, ready } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+
   const [favorites, setFavorites] = useState(() => {
     if (typeof window !== "undefined") {
       try {
@@ -39,6 +44,23 @@ export default function Favorites({ tz }) {
 
   const [editing, setEditing] = useState(false);
   const [section, setSection] = useState("grupos");
+
+  // Hasta saber si hay sesión, no renderizamos nada (evita parpadeo).
+  if (!ready) return null;
+
+  if (!user) {
+    return (
+      <div className="locked-screen">
+        <div className="locked-icon">🔒</div>
+        <h2>Iniciá sesión para ver tus favoritos</h2>
+        <p>Armá tu lista de equipos y seguí todos sus partidos.</p>
+        <button className="auth-submit" onClick={() => setAuthOpen(true)}>
+          Iniciar sesión
+        </button>
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      </div>
+    );
+  }
 
   const allTeams = Object.keys(FLAGS).sort();
 

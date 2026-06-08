@@ -5,6 +5,7 @@ import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import AddToCalendar from "./AddToCalendar";
 
 // Un partido se considera "mirable" (en juego) hasta 2 h después del inicio.
 const WINDOW_MS = 2 * 60 * 60 * 1000;
@@ -116,6 +117,16 @@ export default function NextMatch({ tz }) {
                   📍 {m.venue}, {m.city}
                 </div>
                 <div className="nm-group">{m.label}</div>
+                <div className="nm-cal">
+                  <AddToCalendar
+                    home={m.home}
+                    away={m.away}
+                    venue={m.venue}
+                    city={m.city}
+                    label={m.label}
+                    start={instant}
+                  />
+                </div>
               </div>
             );
           })}

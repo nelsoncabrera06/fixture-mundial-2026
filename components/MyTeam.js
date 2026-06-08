@@ -4,6 +4,7 @@ import { useState } from "react";
 import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag, FLAGS } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import AddToCalendar from "./AddToCalendar";
 import MyTeamPlayoff from "./MyTeamPlayoff";
 import { useAuth } from "./AuthContext";
 import AuthModal from "./AuthModal";
@@ -111,6 +112,15 @@ export default function MyTeam({ tz }) {
                   <div className="when">
                     <div className="date">{formatDate(instant, tz)}</div>
                     <div className="time">{formatTime(instant, tz)}</div>
+                    <AddToCalendar
+                      home={m.home}
+                      away={m.away}
+                      venue={m.venue}
+                      city={m.city}
+                      label={`Grupo ${m.group}`}
+                      start={instant}
+                      compact
+                    />
                   </div>
                   <div className="vs">
                     <div className="teams">

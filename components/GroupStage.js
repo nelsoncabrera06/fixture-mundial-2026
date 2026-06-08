@@ -3,6 +3,7 @@
 import { GROUP_NAMES, GROUPS, GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import AddToCalendar from "./AddToCalendar";
 
 function TeamLabel({ name }) {
   return (
@@ -45,6 +46,15 @@ export default function GroupStage({ tz, onOpenGroup }) {
                   <div className="when">
                     <div className="date">{formatDate(instant, tz)}</div>
                     <div className="time">{formatTime(instant, tz)}</div>
+                    <AddToCalendar
+                      home={m.home}
+                      away={m.away}
+                      venue={m.venue}
+                      city={m.city}
+                      label={`Grupo ${m.group}`}
+                      start={instant}
+                      compact
+                    />
                   </div>
                   <div className="vs">
                     <div className="teams">

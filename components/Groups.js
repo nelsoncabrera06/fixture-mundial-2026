@@ -5,6 +5,7 @@ import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { getResult } from "../lib/results";
 import { computeStandings } from "../lib/standings";
+import AddToCalendar from "./AddToCalendar";
 
 function TeamLabel({ name }) {
   return (
@@ -100,6 +101,15 @@ export default function Groups({ tz, group, onSelectGroup }) {
             <div className="gd-match" key={i}>
               <div className="gd-match-when">
                 {formatDate(instant, tz)} · {formatTime(instant, tz)}
+                <AddToCalendar
+                  home={m.home}
+                  away={m.away}
+                  venue={m.venue}
+                  city={m.city}
+                  label={`Grupo ${active}`}
+                  start={instant}
+                  compact
+                />
               </div>
               <div className="gd-match-row">
                 <span className="gd-home">

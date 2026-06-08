@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import TimezonePicker from "../components/TimezonePicker";
 import GroupStage from "../components/GroupStage";
 import Knockout from "../components/Knockout";
+import NextMatch from "../components/NextMatch";
 import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
 import MyAccount from "../components/MyAccount";
@@ -49,6 +50,7 @@ export default function Home() {
   const sections = [
     { id: "grupos", label: "Fase de grupos", icon: "🏟️" },
     { id: "playoff", label: "Playoffs", icon: "🏆" },
+    { id: "siguiente", label: "Siguiente partido", icon: "⏭️" },
     { id: "miequipo", label: "Mi equipo", icon: "⭐" },
     { id: "favoritos", label: "Favoritos", icon: "❤️" },
     {
@@ -113,6 +115,7 @@ export default function Home() {
             </header>
           </div>
 
+          {tab === "siguiente" && <NextMatch tz={tz} />}
           {tab === "grupos" && <GroupStage tz={tz} />}
           {tab === "playoff" && <Knockout tz={tz} />}
           {tab === "miequipo" && <MyTeam tz={tz} />}

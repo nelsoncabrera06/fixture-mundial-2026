@@ -1468,3 +1468,126 @@ body {
   color: var(--muted);
   font-size: 0.82rem;
 }
+
+/* ---- Siguiente partido ---- */
+.nextmatch {
+  max-width: 520px;
+  margin: 0 auto;
+}
+.nm-card {
+  background: linear-gradient(160deg, var(--card-hover) 0%, var(--card) 70%);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px 22px 22px;
+  box-shadow: var(--shadow);
+}
+.nm-card--live {
+  border-color: #ff5470;
+  box-shadow: 0 0 0 1px #ff5470, var(--shadow);
+}
+.nm-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.nm-label {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--accent-2);
+}
+.nm-countdown {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+.nm-now {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #ff5470;
+}
+.nm-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ff5470;
+  box-shadow: 0 0 0 0 rgba(255, 84, 112, 0.6);
+  animation: nm-pulse 1.4s infinite;
+}
+@keyframes nm-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 84, 112, 0.6); }
+  70% { box-shadow: 0 0 0 8px rgba(255, 84, 112, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 84, 112, 0); }
+}
+.nm-simul {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.nm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.nm-match {
+  padding: 14px 0 0;
+}
+.nm-match + .nm-match {
+  border-top: 1px solid var(--border);
+}
+.nm-teams {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.nm-flag {
+  font-size: 1.5rem;
+}
+.nm-vs {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.nm-when,
+.nm-venue {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.nm-group {
+  display: inline-block;
+  margin-top: 8px;
+  background: var(--accent-2);
+  color: #2a2300;
+  font-weight: 800;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  padding: 2px 10px;
+}
+.nm-card--empty {
+  text-align: center;
+}
+.nm-trophy {
+  font-size: 3rem;
+  margin-bottom: 8px;
+}
+.nm-card--empty h2 {
+  margin: 0 0 6px;
+}
+.nm-card--empty p {
+  color: var(--muted);
+  margin: 0;
+}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import TimezonePicker from "../components/TimezonePicker";
 import GroupStage from "../components/GroupStage";
 import Knockout from "../components/Knockout";
+import Groups from "../components/Groups";
 import NextMatch from "../components/NextMatch";
 import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
@@ -20,6 +21,14 @@ export default function Home() {
   const [tab, setTab] = useState("grupos");
   const [tz, setTz] = useState(DEFAULT_TZ);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Grupo activo en la pestaña "Grupos" (también lo setea el link desde
+  // "Fase de grupos" al tocar un grupo).
+  const [groupFocus, setGroupFocus] = useState("A");
+
+  const openGroup = (g) => {
+    setGroupFocus(g);
+    setTab("detalle");
+  };
 
   // El equipo mostrado en "Mi cuenta" sale del registro del usuario.
   const myTeam = user?.team || "Argentina";
@@ -52,6 +61,7 @@ export default function Home() {
   const sections = [
     { id: "grupos", label: "Fase de grupos", icon: "🏟️" },
     { id: "playoff", label: "Playoffs", icon: "🏆" },
+    { id: "detalle", label: "Grupos", icon: "📊" },
     { id: "siguiente", label: "Siguiente partido", icon: "⏭️" },
     { id: "miequipo", label: "Mi equipo", icon: "⭐" },
     { id: "favoritos", label: "Favoritos", icon: "❤️" },
@@ -118,8 +128,11 @@ export default function Home() {
           </div>
 
           {tab === "siguiente" && <NextMatch tz={tz} />}
-          {tab === "grupos" && <GroupStage tz={tz} />}
+          {tab === "grupos" && <GroupStage tz={tz} onOpenGroup={openGroup} />}
           {tab === "playoff" && <Knockout tz={tz} />}
+          {tab === "detalle" && (
+            <Groups tz={tz} group={groupFocus} onSelectGroup={setGroupFocus} />
+          )}
           {tab === "miequipo" && <MyTeam tz={tz} />}
           {tab === "favoritos" && <Favorites tz={tz} />}
           {tab === "cuenta" && <MyAccount myTeam={myTeam} tz={tz} onTzChange={changeTz} />}

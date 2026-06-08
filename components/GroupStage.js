@@ -12,7 +12,7 @@ function TeamLabel({ name }) {
   );
 }
 
-export default function GroupStage({ tz }) {
+export default function GroupStage({ tz, onOpenGroup }) {
   return (
     <div className="groups-grid">
       {GROUP_NAMES.map((g) => {
@@ -21,9 +21,15 @@ export default function GroupStage({ tz }) {
         );
         return (
           <section className="group-card" key={g}>
-            <h2>
+            <button
+              type="button"
+              className="group-link"
+              onClick={() => onOpenGroup?.(g)}
+              title={`Ver tabla y detalle del Grupo ${g}`}
+            >
               <span className="group-badge">Grupo {g}</span>
-            </h2>
+              <span className="group-link-cta">Ver tabla →</span>
+            </button>
             <ul className="team-list">
               {GROUPS[g].map((team) => (
                 <li key={team}>

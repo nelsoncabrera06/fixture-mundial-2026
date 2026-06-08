@@ -1,5 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "../components/AuthContext";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
   title: "Fixture Mundial 2026",
@@ -12,6 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body>
         <AuthProvider>{children}</AuthProvider>
+        <Analytics />
       </body>
     </html>
   );

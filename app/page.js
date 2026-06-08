@@ -24,10 +24,12 @@ export default function Home() {
   // El equipo mostrado en "Mi cuenta" sale del registro del usuario.
   const myTeam = user?.team || "Argentina";
 
-  // Recupera la zona guardada (solo en cliente, evita desajuste de hidratación).
+  // Solo en cliente (evita desajuste de hidratación): si hay una zona guardada
+  // se respeta; si no, se usa "auto" para mostrarle al visitante nuevo la hora
+  // de su propio dispositivo en vez del default de Helsinki.
   useEffect(() => {
     const saved = window.localStorage.getItem(TZ_STORAGE_KEY);
-    if (saved) setTz(saved);
+    setTz(saved || "auto");
   }, []);
 
   // Con sesión activa, la zona horaria guardada del usuario tiene prioridad.

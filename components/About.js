@@ -6,7 +6,9 @@ import { AUTHOR, LINKS, DONATIONS, CONTACT } from "../lib/about";
 import ContactForm from "./ContactForm";
 
 // Fila de cripto con copiar + ver QR + "ya envié". Si no hay dirección, "Próximamente".
-function CryptoRow({ label, address, note }) {
+// qrPrefix: esquema para el QR (ej. "lightning:" para Lightning Address). El
+// texto que se copia es siempre la dirección pelada; el prefijo es solo del QR.
+function CryptoRow({ label, address, note, qrPrefix = "" }) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [sent, setSent] = useState(false);
@@ -69,7 +71,7 @@ function CryptoRow({ label, address, note }) {
           </div>
           {showQR && (
             <div className="crypto-qr">
-              <QRCodeSVG value={address} size={168} marginSize={2} />
+              <QRCodeSVG value={qrPrefix + address} size={168} marginSize={2} />
               <span className="crypto-qr-hint">Escaneá con tu wallet</span>
             </div>
           )}
@@ -165,7 +167,18 @@ export default function About() {
           <div className="crypto-section">
             <h4 className="crypto-title">Cripto</h4>
             <div className="crypto-list">
-              <CryptoRow label="₿ Bitcoin" address={DONATIONS.bitcoin} />
+              <CryptoRow
+                label="⚡ Bitcoin (Lightning)"
+                address={DONATIONS.lightning}
+                qrPrefix="lightning:"
+                note="Pagá con cualquier wallet Lightning — al instante y con fees mínimos. Ideal para propinas."
+              />
+              <CryptoRow
+                label="₿ Bitcoin (on-chain)"
+                address={DONATIONS.bitcoin}
+                qrPrefix="bitcoin:"
+                note="Red Bitcoin tradicional. Mejor para montos grandes (los fees no convienen para donaciones chicas)."
+              />
               <CryptoRow
                 label="₮ USDT"
                 address={DONATIONS.usdt}

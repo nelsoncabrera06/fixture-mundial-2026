@@ -97,6 +97,17 @@ export default function Admin() {
       </div>
 
       {section === "usuarios" && (
+        <>
+        <div className="admin-stats">
+          <div className="admin-stat">
+            <span className="admin-stat-num">
+              {loading ? "…" : users.length}
+            </span>
+            <span className="admin-stat-label">
+              {users.length === 1 ? "usuario registrado" : "usuarios registrados"}
+            </span>
+          </div>
+        </div>
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
@@ -221,6 +232,7 @@ export default function Admin() {
           </table>
           {error && <p className="account-msg-error">{error}</p>}
         </div>
+        </>
       )}
     </div>
   );

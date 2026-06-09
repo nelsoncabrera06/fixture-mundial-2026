@@ -54,10 +54,14 @@ body {
   padding: 20px 14px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  /* El scroll vive en .nav (no en toda la sidebar) para que el brand quede
+     fijo arriba y el botón "ocultar" fijo abajo, siempre visibles —
+     clave en landscape/pantallas bajas donde el menú no entra entero. */
+  overflow: hidden;
 }
 .sidebar-hide {
   margin-top: auto;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -86,6 +90,7 @@ body {
   padding: 6px 8px 18px;
   margin-bottom: 8px;
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .brand-mark {
   font-size: 1.6rem;
@@ -105,6 +110,11 @@ body {
   flex-direction: column;
   gap: 4px;
   margin-top: 14px;
+  /* Región que crece y scrollea por dentro; min-height:0 habilita el scroll
+     dentro del contenedor flex. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 .nav-item {
   display: flex;
@@ -557,10 +567,85 @@ body {
   bottom: 100%;
 }
 
-/* En pantallas chicas el cuadro se desplaza horizontalmente */
+/* Vista mobile de playoffs: lista ronda por ronda (oculta en desktop) */
+.bk-mobile {
+  display: none;
+}
+.bk-round + .bk-round {
+  margin-top: 24px;
+}
+.bk-round-title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent-2);
+}
+.bk-round-matches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+/* En pantallas chicas: ocultamos el bracket de escritorio y mostramos el mismo
+   cuadro pero horizontal, con scroll-snap. Cada columna mide ~media pantalla,
+   así que entran 2 rondas a la vez y al deslizar se avanza de a una. */
 @media (max-width: 720px) {
   .bk-body {
     min-height: 0;
+  }
+  .bracket2 {
+    display: none;
+  }
+  .bk-mobile {
+    display: block;
+    /* col-w = mitad del ancho visible → entran 2 rondas por pantalla.
+       (la columna incluye el conector/gutter; la tarjeta es el resto) */
+    --gutter: 18px;
+    --col-w: calc(50vw - 16px);
+    --card-w: calc(var(--col-w) - var(--gutter));
+    --vpad: 6px;
+    --line: var(--border);
+  }
+  .bkm-hint {
+    margin: 0 0 12px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  /* Contenedor que scrollea en horizontal. Sin alto fijo: crece con el árbol
+     y la página scrollea en vertical con normalidad. */
+  .bkm-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+  }
+  .bkm-headers {
+    display: flex;
+    width: max-content;
+    margin-bottom: 10px;
+  }
+  .bkm-head {
+    flex: 0 0 var(--col-w);
+    padding-left: var(--gutter); /* alinea el título sobre la tarjeta */
+    text-align: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-2);
+    scroll-snap-align: start;
+  }
+  .bkm-body {
+    width: max-content;
+  }
+  /* En las tarjetas del bracket mobile los nombres largos van en 2 líneas */
+  .bk-mobile .bk-team {
+    white-space: normal;
+  }
+  .bkm-third {
+    margin-top: 26px;
+    max-width: 300px;
+  }
+  .bkm-third .bk-round-title {
+    margin-bottom: 10px;
   }
 }
 
@@ -600,6 +685,10 @@ body {
     justify-content: center;
   }
   .main {
+    /* Ancho definido (resuelve contra .layout = ancho del viewport) para que
+       el contenido ancho —p. ej. el bracket mobile con scroll horizontal— no
+       estire la página entera, sino que scrollee dentro de su contenedor. */
+    width: 100%;
     padding: 18px 14px 56px;
   }
 }
@@ -1362,6 +1451,32 @@ body {
 /* ── Admin: tabla de usuarios ─────────────────────────────── */
 .admin-container {
   width: 100%;
+}
+
+/* Tarjeta con el total de usuarios (para seguir el crecimiento) */
+.admin-stats {
+  display: flex;
+  gap: 12px;
+  margin: 4px 0 16px;
+}
+.admin-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 18px;
+}
+.admin-stat-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+.admin-stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .admin-table-wrap {

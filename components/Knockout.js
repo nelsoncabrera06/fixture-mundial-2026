@@ -75,6 +75,7 @@ function Tree({ node, side, tz }) {
 export default function Knockout({ tz }) {
   const left = buildTree("101"); // semifinal izquierda y su rama
   const right = buildTree("102"); // semifinal derecha y su rama
+  const full = buildTree("104"); // bracket completo (R32 → Final) para mobile
   const final = byId["104"];
   const third = byId["103"];
 
@@ -125,6 +126,33 @@ export default function Knockout({ tz }) {
           <div className="bk-side bk-side-right">
             {right && <Tree node={right} side="right" tz={tz} />}
           </div>
+        </div>
+      </div>
+
+      {/* Vista mobile: el mismo bracket pero horizontal y con scroll-snap.
+          Cada columna mide ~media pantalla, así que se ven 2 rondas a la vez;
+          deslizando hacia la izquierda aparecen las siguientes
+          (Ronda de 32 → Octavos → Cuartos → Semifinal → Final). El 3.º puesto
+          va aparte porque no cuelga del árbol de la final. */}
+      <div className="bk-mobile">
+        <p className="bkm-hint">Deslizá para ver las siguientes rondas →</p>
+        <div className="bkm-scroll">
+          <div className="bkm-headers">
+            {["Ronda de 32", "Octavos", "Cuartos", "Semifinal", "Final"].map(
+              (h) => (
+                <div className="bkm-head" key={h}>
+                  {h}
+                </div>
+              )
+            )}
+          </div>
+          <div className="bkm-body bk-side bk-side-left">
+            {full && <Tree node={full} side="left" tz={tz} />}
+          </div>
+        </div>
+        <div className="bkm-third">
+          <h3 className="bk-round-title">🥉 Tercer puesto</h3>
+          <MatchCard match={third} tz={tz} />
         </div>
       </div>
     </>

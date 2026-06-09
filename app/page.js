@@ -5,6 +5,7 @@ import TimezonePicker from "../components/TimezonePicker";
 import GroupStage from "../components/GroupStage";
 import Knockout from "../components/Knockout";
 import Groups from "../components/Groups";
+import Calendar from "../components/Calendar";
 import NextMatch from "../components/NextMatch";
 import About from "../components/About";
 import MyTeam from "../components/MyTeam";
@@ -63,6 +64,7 @@ export default function Home() {
     { id: "grupos", label: "Fase de grupos", icon: "🏟️" },
     { id: "playoff", label: "Playoffs", icon: "🏆" },
     { id: "detalle", label: "Grupos", icon: "📊" },
+    { id: "calendario", label: "Calendario", icon: "📅" },
     { id: "siguiente", label: "Siguiente partido", icon: "⏭️" },
     { id: "miequipo", label: "Mi equipo", icon: "⭐" },
     { id: "favoritos", label: "Favoritos", icon: "❤️" },
@@ -137,6 +139,7 @@ export default function Home() {
           {tab === "detalle" && (
             <Groups tz={tz} group={groupFocus} onSelectGroup={setGroupFocus} />
           )}
+          {tab === "calendario" && <Calendar tz={tz} />}
           {tab === "miequipo" && <MyTeam tz={tz} />}
           {tab === "favoritos" && <Favorites tz={tz} />}
           {tab === "sobre" && <About />}

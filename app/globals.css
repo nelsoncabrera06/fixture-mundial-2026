@@ -130,6 +130,7 @@ body {
   background: var(--accent);
   color: #04231a;
 }
+
 .nav-icon {
   font-size: 1.05rem;
 }
@@ -1855,3 +1856,351 @@ body {
 .atc-ico {
   font-size: 1rem;
 }
+
+/* ---- Sobre el proyecto ---- */
+.about {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.about-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.about-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.about-avatar {
+  font-size: 2.2rem;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+.about-name {
+  margin: 0 0 4px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.about-tagline {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.about-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.about-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 14px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: border-color 0.15s;
+}
+.about-link:hover {
+  border-color: var(--accent);
+}
+.about-subtitle {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+.about-note {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.donate-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.donate-btn {
+  flex: 1 1 140px;
+  text-align: center;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  transition: transform 0.1s, filter 0.15s;
+}
+.donate-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+.donate-cafecito {
+  background: #ffd23f;
+  color: #2a2300;
+  border-color: #ffd23f;
+}
+.donate-kofi {
+  background: #ff5e5b;
+  color: #fff;
+  border-color: #ff5e5b;
+}
+.crypto-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.crypto-title {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.crypto-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.crypto-soon {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-2);
+  background: rgba(255, 210, 63, 0.12);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.crypto-note {
+  margin: 8px 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.sent-btn {
+  margin-top: 10px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.sent-btn:hover {
+  background: rgba(0, 214, 143, 0.1);
+}
+.crypto-thanks {
+  margin: 10px 0 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.crypto-row {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.crypto-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.crypto-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.crypto-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.crypto-addr-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.crypto-addr {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 9px;
+  color: var(--text);
+}
+.copy-btn {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #06281c;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+.copy-btn:hover {
+  filter: brightness(1.08);
+}
+.qr-btn {
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.qr-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.crypto-qr {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+/* Fondo blanco con padding: necesario para que el QR sea escaneable */
+.crypto-qr svg {
+  background: #fff;
+  padding: 10px;
+  border-radius: 10px;
+}
+.crypto-qr-hint {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* Formulario de contacto */
+.contact-locked {
+  text-align: center;
+}
+.contact-locked .locked-icon {
+  font-size: 2rem;
+  margin-bottom: 4px;
+}
+.contact-locked h3 {
+  margin: 0 0 6px;
+}
+.contact-locked .auth-submit {
+  margin-top: 12px;
+}
+.contact-as {
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+.contact-as strong {
+  color: var(--text);
+}
+.contact-as-mail {
+  word-break: break-all;
+}
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.contact-field input,
+.contact-field textarea {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 11px;
+  color: var(--text);
+  font: inherit;
+  font-weight: 400;
+  resize: vertical;
+}
+.contact-field input:focus,
+.contact-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+/* Honeypot: invisible para humanos */
+.contact-hp {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+.contact-submit {
+  align-self: flex-start;
+  background: var(--accent);
+  color: #06281c;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+.contact-submit:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.contact-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.contact-error {
+  color: #ff8a9b;
+  font-size: 0.82rem;
+  margin: 0;
+}
+.contact-done {
+  text-align: center;
+}
+.contact-done-icon {
+  font-size: 2.4rem;
+  margin-bottom: 6px;
+}
+.contact-done h3 {
+  margin: 0 0 6px;
+}
+.contact-done p {
+  color: var(--muted);
+  margin: 0 0 14px;
+}
+

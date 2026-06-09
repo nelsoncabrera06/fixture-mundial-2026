@@ -6,6 +6,7 @@ import GroupStage from "../components/GroupStage";
 import Knockout from "../components/Knockout";
 import Groups from "../components/Groups";
 import NextMatch from "../components/NextMatch";
+import About from "../components/About";
 import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
 import MyAccount from "../components/MyAccount";
@@ -70,6 +71,7 @@ export default function Home() {
       label: user ? "Mi cuenta" : "Login",
       icon: "👤",
     },
+    { id: "sobre", label: "Contacto", icon: "✉️" },
   ];
   // La sección Admin solo aparece para usuarios con rol admin.
   if (user?.role === "admin") {
@@ -123,7 +125,9 @@ export default function Home() {
             )}
             <header className="header">
               <h1>{sections.find((s) => s.id === tab)?.label}</h1>
-              <div className="sub">Del 11 de junio al 19 de julio de 2026</div>
+              {tab !== "sobre" && (
+                <div className="sub">Del 11 de junio al 19 de julio de 2026</div>
+              )}
             </header>
           </div>
 
@@ -135,6 +139,7 @@ export default function Home() {
           )}
           {tab === "miequipo" && <MyTeam tz={tz} />}
           {tab === "favoritos" && <Favorites tz={tz} />}
+          {tab === "sobre" && <About />}
           {tab === "cuenta" && <MyAccount myTeam={myTeam} tz={tz} onTzChange={changeTz} />}
           {tab === "admin" && <Admin />}
 

@@ -636,6 +636,20 @@ body {
   .bkm-body {
     width: max-content;
   }
+  /* WebKit (Safari/iOS) encoge los flex hijos al ancho del scrollport (362px)
+     en vez de respetar width:max-content, montando las columnas unas sobre
+     otras. flex-shrink:0 los mantiene en su ancho natural. (Chromium no lo
+     necesitaba, por eso no se veía en la simulación.) */
+  .bk-mobile .bk-tree,
+  .bk-mobile .bk-branches {
+    flex-shrink: 0;
+  }
+  /* Además, WebKit dimensiona el contenedor de ramas por el min-content de las
+     tarjetas (que es menor que la columna), dejándolas montadas ~30px. Fijar
+     min-width = ancho de columna fuerza el cálculo correcto. */
+  .bk-mobile .bk-node {
+    min-width: var(--col-w);
+  }
   /* En las tarjetas del bracket mobile los nombres largos van en 2 líneas */
   .bk-mobile .bk-team {
     white-space: normal;

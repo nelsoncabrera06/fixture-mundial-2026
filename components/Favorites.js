@@ -8,9 +8,6 @@ import MyTeamPlayoff from "./MyTeamPlayoff";
 import { useAuth } from "./AuthContext";
 import AuthModal from "./AuthModal";
 
-const STORAGE_KEY = "fixture2026.favorites";
-const ACTIVE_KEY = "fixture2026.favorites.active";
-
 function TeamLabel({ name }) {
   return (
     <span>
@@ -20,30 +17,15 @@ function TeamLabel({ name }) {
 }
 
 export default function Favorites({ tz }) {
-  const { user, ready } = useAuth();
+  const { user, ready, updatePrefs } = useAuth();
   const [authOpen, setAuthOpen] = useState(false);
 
-  const [favorites, setFavorites] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = window.localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-
-  const [activeTeam, setActiveTeam] = useState(() => {
-    if (typeof window !== "undefined") {
-      return window.localStorage.getItem(ACTIVE_KEY) || null;
-    }
-    return null;
-  });
-
+  // `activeTeam` (qué favorito se está viendo) es solo estado de UI; la LISTA
+  // de favoritos vive en la DB (profiles.favorites).
+  const [activeTeam, setActiveTeam] = useState(null);
   const [editing, setEditing] = useState(false);
   const [section, setSection] = useState("grupos");
+  const [saveError, setSaveError] = useState("");
 
   // Hasta saber si hay sesión, no renderizamos nada (evita parpadeo).
   if (!ready) return null;
@@ -63,29 +45,33 @@ export default function Favorites({ tz }) {
   }
 
   const allTeams = Object.keys(FLAGS).sort();
+  const favorites = user.favorites || [];
 
-  const toggleFavorite = (team) => {
+  // Favorito mostrado: el seleccionado si sigue en la lista; si no, el primero.
+  const effectiveActive =
+    activeTeam && favorites.includes(activeTeam) ? activeTeam : favorites[0] || null;
+
+  const toggleFavorite = async (team) => {
     const updated = favorites.includes(team)
       ? favorites.filter((t) => t !== team)
       : [...favorites, team];
-    setFavorites(updated);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    // Si se elimina el equipo activo, limpiar selección
-    if (!updated.includes(activeTeam)) {
-      setActiveTeam(updated[0] || null);
-      window.localStorage.setItem(ACTIVE_KEY, updated[0] || "");
+    // Guarda en la DB (profiles.favorites); el contexto re-renderiza al volver.
+    setSaveError("");
+    try {
+      await updatePrefs({ favorites: updated });
+    } catch (e) {
+      setSaveError(e?.message || "No se pudo guardar el favorito.");
     }
   };
 
   const selectTeam = (team) => {
     setActiveTeam(team);
     setSection("grupos");
-    window.localStorage.setItem(ACTIVE_KEY, team);
   };
 
-  const matches = activeTeam
+  const matches = effectiveActive
     ? GROUP_MATCHES.filter(
-        (m) => m.home === activeTeam || m.away === activeTeam
+        (m) => m.home === effectiveActive || m.away === effectiveActive
       ).sort((a, b) => kickoff(a) - kickoff(b))
     : [];
 
@@ -106,6 +92,7 @@ export default function Favorites({ tz }) {
       {editing && (
         <div className="team-picker">
           <p className="picker-hint">Marcá los equipos que querés seguir:</p>
+          {saveError && <p className="contact-error">⚠️ {saveError}</p>}
           <div className="picker-grid">
             {allTeams.map((team) => (
               <button
@@ -135,7 +122,7 @@ export default function Favorites({ tz }) {
             {favorites.map((team) => (
               <button
                 key={team}
-                className={`favs-list-item ${activeTeam === team ? "active" : ""}`}
+                className={`favs-list-item ${effectiveActive === team ? "active" : ""}`}
                 onClick={() => selectTeam(team)}
               >
                 <span className="favs-flag">{flag(team)}</span>
@@ -145,7 +132,7 @@ export default function Favorites({ tz }) {
           </div>
 
           {/* Detalle del equipo activo */}
-          {activeTeam && (
+          {effectiveActive && (
             <div className="favs-detail">
               {/* Tabs internos */}
               <div className="myteam-tabs">
@@ -170,7 +157,7 @@ export default function Favorites({ tz }) {
                   <div className="myteam-matches">
                     {matches.map((m, i) => {
                       const instant = kickoff(m);
-                      const isHome = m.home === activeTeam;
+                      const isHome = m.home === effectiveActive;
                       return (
                         <div className="match match--highlight" key={i}>
                           <div className="when">
@@ -197,7 +184,7 @@ export default function Favorites({ tz }) {
                 )
               )}
 
-              {section === "playoff" && <MyTeamPlayoff team={activeTeam} tz={tz} />}
+              {section === "playoff" && <MyTeamPlayoff team={effectiveActive} tz={tz} />}
             </div>
           )}
         </div>

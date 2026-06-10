@@ -4,20 +4,23 @@ import { useState } from "react";
 import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag, FLAGS } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import { teamName } from "../lib/i18n";
+import { useLang } from "./LanguageContext";
 import MyTeamPlayoff from "./MyTeamPlayoff";
 import { useAuth } from "./AuthContext";
 import AuthModal from "./AuthModal";
 
-function TeamLabel({ name }) {
+function TeamLabel({ name, lang }) {
   return (
     <span>
-      {flag(name)} {name}
+      {flag(name)} {teamName(name, lang)}
     </span>
   );
 }
 
 export default function Favorites({ tz }) {
   const { user, ready, updatePrefs } = useAuth();
+  const { lang, t } = useLang();
   const [authOpen, setAuthOpen] = useState(false);
 
   // `activeTeam` (qué favorito se está viendo) es solo estado de UI; la LISTA
@@ -34,10 +37,10 @@ export default function Favorites({ tz }) {
     return (
       <div className="locked-screen">
         <div className="locked-icon">🔒</div>
-        <h2>Iniciá sesión para ver tus favoritos</h2>
-        <p>Armá tu lista de equipos y seguí todos sus partidos.</p>
+        <h2>{t("fav.locked.title")}</h2>
+        <p>{t("fav.locked.sub")}</p>
         <button className="auth-submit" onClick={() => setAuthOpen(true)}>
-          Iniciar sesión
+          {t("common.signin")}
         </button>
         <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       </div>
@@ -60,7 +63,7 @@ export default function Favorites({ tz }) {
     try {
       await updatePrefs({ favorites: updated });
     } catch (e) {
-      setSaveError(e?.message || "No se pudo guardar el favorito.");
+      setSaveError(e?.message || t("fav.saveError"));
     }
   };
 
@@ -81,17 +84,17 @@ export default function Favorites({ tz }) {
       <div className="myteam-header">
         <div className="myteam-label">
           <span className="myteam-flag">❤️</span>
-          <h2>Favoritos</h2>
+          <h2>{t("fav.title")}</h2>
         </div>
         <button className="btn-change" onClick={() => setEditing((v) => !v)}>
-          {editing ? "Listo" : "Editar lista"}
+          {editing ? t("fav.done") : t("fav.edit")}
         </button>
       </div>
 
       {/* Editor de lista */}
       {editing && (
         <div className="team-picker">
-          <p className="picker-hint">Marcá los equipos que querés seguir:</p>
+          <p className="picker-hint">{t("fav.pick")}</p>
           {saveError && <p className="contact-error">⚠️ {saveError}</p>}
           <div className="picker-grid">
             {allTeams.map((team) => (
@@ -100,7 +103,7 @@ export default function Favorites({ tz }) {
                 className={`picker-item ${favorites.includes(team) ? "selected" : ""}`}
                 onClick={() => toggleFavorite(team)}
               >
-                {flag(team)} {team}
+                {flag(team)} {teamName(team, lang)}
               </button>
             ))}
           </div>
@@ -109,9 +112,7 @@ export default function Favorites({ tz }) {
 
       {/* Sin favoritos */}
       {favorites.length === 0 && !editing && (
-        <p className="no-matches">
-          Todavía no agregaste favoritos. Tocá "Editar lista" para empezar.
-        </p>
+        <p className="no-matches">{t("fav.empty")}</p>
       )}
 
       {/* Lista de favoritos + detalle */}
@@ -126,7 +127,7 @@ export default function Favorites({ tz }) {
                 onClick={() => selectTeam(team)}
               >
                 <span className="favs-flag">{flag(team)}</span>
-                <span className="favs-name">{team}</span>
+                <span className="favs-name">{teamName(team, lang)}</span>
               </button>
             ))}
           </div>
@@ -140,19 +141,19 @@ export default function Favorites({ tz }) {
                   className={`myteam-tab ${section === "grupos" ? "active" : ""}`}
                   onClick={() => setSection("grupos")}
                 >
-                  🏟️ Fase de grupos
+                  {t("tab.groupstage")}
                 </button>
                 <button
                   className={`myteam-tab ${section === "playoff" ? "active" : ""}`}
                   onClick={() => setSection("playoff")}
                 >
-                  🏆 Playoffs
+                  {t("tab.playoffs")}
                 </button>
               </div>
 
               {section === "grupos" && (
                 matches.length === 0 ? (
-                  <p className="no-matches">No hay partidos para este equipo.</p>
+                  <p className="no-matches">{t("myteam.noMatches")}</p>
                 ) : (
                   <div className="myteam-matches">
                     {matches.map((m, i) => {
@@ -161,21 +162,23 @@ export default function Favorites({ tz }) {
                       return (
                         <div className="match match--highlight" key={i}>
                           <div className="when">
-                            <div className="date">{formatDate(instant, tz)}</div>
-                            <div className="time">{formatTime(instant, tz)}</div>
+                            <div className="date">{formatDate(instant, tz, lang)}</div>
+                            <div className="time">{formatTime(instant, tz, lang)}</div>
                           </div>
                           <div className="vs">
                             <div className="teams">
                               <span className={isHome ? "my-team-name" : ""}>
-                                <TeamLabel name={m.home} />
+                                <TeamLabel name={m.home} lang={lang} />
                               </span>
-                              <span className="sep">vs</span>
+                              <span className="sep">{t("vs")}</span>
                               <span className={!isHome ? "my-team-name" : ""}>
-                                <TeamLabel name={m.away} />
+                                <TeamLabel name={m.away} lang={lang} />
                               </span>
                             </div>
                             <div className="venue">📍 {m.venue}, {m.city}</div>
-                            <div className="group-badge-small">Grupo {m.group}</div>
+                            <div className="group-badge-small">
+                              {t("group.badge", { g: m.group })}
+                            </div>
                           </div>
                         </div>
                       );

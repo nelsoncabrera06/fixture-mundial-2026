@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { flag } from "../lib/teams";
 import { TIMEZONES } from "../lib/timezone";
+import { teamName, LANGS, LANG_LABELS } from "../lib/i18n";
 import { useAuth } from "./AuthContext";
+import { useLang } from "./LanguageContext";
 import { changePassword, deleteAccount } from "../lib/auth";
 import AuthModal from "./AuthModal";
 
 export default function MyAccount({ myTeam, tz, onTzChange }) {
   const { user, signOut } = useAuth();
+  const { lang, setLang, t } = useLang();
   const [authOpen, setAuthOpen] = useState(false);
 
   // Cambio de contraseña.
@@ -27,10 +30,10 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
     return (
       <div className="locked-screen">
         <div className="locked-icon">👤</div>
-        <h2>Iniciá sesión o registrate</h2>
-        <p>Accedé a tu cuenta para gestionar tu perfil.</p>
+        <h2>{t("account.locked.title")}</h2>
+        <p>{t("account.locked.sub")}</p>
         <button className="auth-submit" onClick={() => setAuthOpen(true)}>
-          Iniciar sesión o registrarse
+          {t("account.locked.cta")}
         </button>
         <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       </div>
@@ -46,7 +49,7 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
         currentPassword: curPwd,
         newPassword: newPwd,
       });
-      setPwdMsg({ type: "ok", text: "Contraseña actualizada." });
+      setPwdMsg({ type: "ok", text: t("account.pwd.updated") });
       setCurPwd("");
       setNewPwd("");
       setShowPwd(false);
@@ -57,7 +60,7 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
 
   const confirmDelete = async () => {
     if (confirmName !== user.username) {
-      setDelError("El nombre no coincide.");
+      setDelError(t("account.delete.nameMismatch"));
       return;
     }
     try {
@@ -74,7 +77,7 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
 
       <div className="account-card">
         <div className="account-row">
-          <span className="account-label">👤 Usuario</span>
+          <span className="account-label">{t("account.user")}</span>
           <span className="account-value">
             {user.username}
             {user.role === "admin" && (
@@ -83,25 +86,39 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
           </span>
         </div>
         <div className="account-row">
-          <span className="account-label">📧 Email</span>
+          <span className="account-label">{t("account.email")}</span>
           <span className="account-value">{user.email}</span>
         </div>
         <div className="account-row">
-          <span className="account-label">⭐ Mi equipo</span>
+          <span className="account-label">{t("account.myteam")}</span>
           <span className="account-value">
-            {flag(myTeam)} {myTeam}
+            {flag(myTeam)} {teamName(myTeam, lang)}
           </span>
         </div>
         <div className="account-row account-row--select">
-          <span className="account-label">🕒 Zona horaria</span>
+          <span className="account-label">{t("account.timezone")}</span>
           <select
             className="account-tz-select"
             value={tz}
             onChange={(e) => onTzChange(e.target.value)}
           >
-            {TIMEZONES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {TIMEZONES.map((tzOpt) => (
+              <option key={tzOpt.value} value={tzOpt.value}>
+                {tzOpt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="account-row account-row--select">
+          <span className="account-label">{t("account.language")}</span>
+          <select
+            className="account-tz-select"
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+          >
+            {LANGS.map((l) => (
+              <option key={l} value={l}>
+                {LANG_LABELS[l]}
               </option>
             ))}
           </select>
@@ -117,12 +134,12 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
             setPwdMsg(null);
           }}
         >
-          🔑 Cambiar contraseña
+          {t("account.pwd.change")}
         </button>
       ) : (
         <form className="account-form" onSubmit={submitPwd}>
           <label className="auth-field">
-            <span>Contraseña actual</span>
+            <span>{t("account.pwd.current")}</span>
             <input
               type="password"
               value={curPwd}
@@ -131,7 +148,7 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
             />
           </label>
           <label className="auth-field">
-            <span>Nueva contraseña</span>
+            <span>{t("account.pwd.new")}</span>
             <input
               type="password"
               value={newPwd}
@@ -150,10 +167,10 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
                 setPwdMsg(null);
               }}
             >
-              Cancelar
+              {t("common.cancel")}
             </button>
             <button type="submit" className="account-btn">
-              Guardar
+              {t("common.save")}
             </button>
           </div>
         </form>
@@ -170,7 +187,7 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
       )}
 
       <button className="account-btn account-btn--ghost" onClick={signOut}>
-        🚪 Cerrar sesión
+        {t("account.logout")}
       </button>
 
       {/* Eliminar cuenta */}
@@ -183,12 +200,12 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
             setDelError("");
           }}
         >
-          🗑️ Eliminar cuenta
+          {t("account.delete")}
         </button>
       ) : (
         <div className="account-danger-box">
           <p className="account-danger-text">
-            Esta acción es irreversible. Para confirmar, escribí tu usuario{" "}
+            {t("account.delete.warnPre")}
             <strong>{user.username}</strong>:
           </p>
           <input
@@ -208,14 +225,14 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
                 setDelError("");
               }}
             >
-              Cancelar
+              {t("common.cancel")}
             </button>
             <button
               type="button"
               className="account-btn account-btn--danger"
               onClick={confirmDelete}
             >
-              Eliminar definitivamente
+              {t("account.delete.confirm")}
             </button>
           </div>
         </div>

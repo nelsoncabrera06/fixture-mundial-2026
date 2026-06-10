@@ -4,6 +4,8 @@ import { useState } from "react";
 import { getPlayoffPaths } from "../lib/playoffPath";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import { teamName, roundName } from "../lib/i18n";
+import { useLang } from "./LanguageContext";
 
 const ROUND_ICONS = {
   r32: "⚔️",
@@ -15,11 +17,12 @@ const ROUND_ICONS = {
 };
 
 export default function MyTeamPlayoff({ team, tz }) {
+  const { lang, t } = useLang();
   const [scenario, setScenario] = useState("first");
   const paths = getPlayoffPaths(team);
 
   if (!paths) {
-    return <p className="no-matches">No se pudo trazar el camino para este equipo.</p>;
+    return <p className="no-matches">{t("path.noPath")}</p>;
   }
 
   const path = scenario === "first" ? paths.first : paths.second;
@@ -31,13 +34,13 @@ export default function MyTeamPlayoff({ team, tz }) {
           className={`scenario-btn ${scenario === "first" ? "active" : ""}`}
           onClick={() => setScenario("first")}
         >
-          🥇 Clasifica 1.° del Grupo {paths.group}
+          {t("path.first", { g: paths.group })}
         </button>
         <button
           className={`scenario-btn ${scenario === "second" ? "active" : ""}`}
           onClick={() => setScenario("second")}
         >
-          🥈 Clasifica 2.° del Grupo {paths.group}
+          {t("path.second", { g: paths.group })}
         </button>
       </div>
 
@@ -50,22 +53,22 @@ export default function MyTeamPlayoff({ team, tz }) {
             <div className={`path-card ${step.roundId === "final" ? "path-card--final" : ""}`}>
               <div className="path-round">
                 <span className="path-round-icon">{ROUND_ICONS[step.roundId] || "⚽"}</span>
-                <span className="path-round-name">{step.roundName}</span>
+                <span className="path-round-name">{roundName(step.roundName, lang)}</span>
               </div>
               <div className="path-details">
                 <div className="path-team">
-                  {flag(team)} <strong>{team}</strong>
+                  {flag(team)} <strong>{teamName(team, lang)}</strong>
                   {step.opponent ? (
                     <>
-                      <span className="path-vs"> vs </span>
-                      <span className="path-opp">{step.opponent}</span>
+                      <span className="path-vs">{t("path.vs")}</span>
+                      <span className="path-opp">{teamName(step.opponent, lang)}</span>
                     </>
                   ) : (
-                    <span className="path-tbd"> vs TBD</span>
+                    <span className="path-tbd">{t("path.vs")}{t("path.tbd")}</span>
                   )}
                 </div>
                 <div className="path-when">
-                  📅 {formatDate(step.instant, tz)} · ⏰ {formatTime(step.instant, tz)}
+                  📅 {formatDate(step.instant, tz, lang)} · ⏰ {formatTime(step.instant, tz, lang)}
                 </div>
                 <div className="path-venue">📍 {step.venue}, {step.city}</div>
               </div>

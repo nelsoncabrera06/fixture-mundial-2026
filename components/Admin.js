@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
+import { useLang } from "./LanguageContext";
 import { listUsers, updateUser, adminDeleteUser } from "../lib/auth";
 import { flag, FLAGS } from "../lib/teams";
 import { TIMEZONES, tzLabel } from "../lib/timezone";
+import { teamName } from "../lib/i18n";
 
 export default function Admin() {
   const { user, refresh } = useAuth();
+  const { lang, t } = useLang();
   const [section, setSection] = useState("usuarios");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,8 +42,8 @@ export default function Admin() {
     return (
       <div className="locked-screen">
         <div className="locked-icon">🛡️</div>
-        <h2>Acceso restringido</h2>
-        <p>Solo los administradores pueden ver esta sección.</p>
+        <h2>{t("admin.restricted.title")}</h2>
+        <p>{t("admin.restricted.sub")}</p>
       </div>
     );
   }
@@ -69,11 +72,7 @@ export default function Admin() {
   };
 
   const removeUser = async (u) => {
-    if (
-      !window.confirm(
-        `¿Eliminar al usuario "${u.username}"? Esta acción no se puede deshacer.`
-      )
-    ) {
+    if (!window.confirm(t("admin.confirmDelete", { name: u.username }))) {
       return;
     }
     try {
@@ -92,7 +91,7 @@ export default function Admin() {
           className={`myteam-tab ${section === "usuarios" ? "active" : ""}`}
           onClick={() => setSection("usuarios")}
         >
-          👥 Usuarios
+          {t("admin.users")}
         </button>
       </div>
 
@@ -104,7 +103,9 @@ export default function Admin() {
               {loading ? "…" : users.length}
             </span>
             <span className="admin-stat-label">
-              {users.length === 1 ? "usuario registrado" : "usuarios registrados"}
+              {users.length === 1
+                ? t("admin.userCount.one")
+                : t("admin.userCount.other")}
             </span>
           </div>
         </div>
@@ -112,11 +113,11 @@ export default function Admin() {
           <table className="admin-table">
             <thead>
               <tr>
-                <th>Usuario</th>
-                <th>Email</th>
-                <th>Equipo</th>
-                <th>Zona horaria</th>
-                <th className="admin-th-actions">Acciones</th>
+                <th>{t("admin.col.user")}</th>
+                <th>{t("admin.col.email")}</th>
+                <th>{t("admin.col.team")}</th>
+                <th>{t("admin.col.tz")}</th>
+                <th className="admin-th-actions">{t("admin.col.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -144,9 +145,9 @@ export default function Admin() {
                               setDraft({ ...draft, team: e.target.value })
                             }
                           >
-                            {teams.map((t) => (
-                              <option key={t} value={t}>
-                                {t}
+                            {teams.map((teamOpt) => (
+                              <option key={teamOpt} value={teamOpt}>
+                                {teamName(teamOpt, lang)}
                               </option>
                             ))}
                           </select>
@@ -159,9 +160,9 @@ export default function Admin() {
                               setDraft({ ...draft, timezone: e.target.value })
                             }
                           >
-                            {TIMEZONES.map((t) => (
-                              <option key={t.value} value={t.value}>
-                                {t.label}
+                            {TIMEZONES.map((tzOpt) => (
+                              <option key={tzOpt.value} value={tzOpt.value}>
+                                {tzOpt.label}
                               </option>
                             ))}
                           </select>
@@ -171,13 +172,13 @@ export default function Admin() {
                             className="admin-btn"
                             onClick={() => saveEdit(u.id)}
                           >
-                            Guardar
+                            {t("common.save")}
                           </button>
                           <button
                             className="admin-btn admin-btn--ghost"
                             onClick={cancelEdit}
                           >
-                            Cancelar
+                            {t("common.cancel")}
                           </button>
                         </td>
                       </>
@@ -191,7 +192,7 @@ export default function Admin() {
                         </td>
                         <td>{u.email}</td>
                         <td>
-                          {flag(u.team)} {u.team}
+                          {flag(u.team)} {teamName(u.team, lang)}
                         </td>
                         <td>{tzLabel(u.timezone)}</td>
                         <td className="admin-actions">
@@ -199,12 +200,12 @@ export default function Admin() {
                             className="admin-btn admin-btn--ghost"
                             onClick={() => startEdit(u)}
                           >
-                            ✏️ Editar
+                            {t("admin.edit")}
                           </button>
                           <button
                             className="admin-btn admin-btn--danger"
                             onClick={() => removeUser(u)}
-                            title="Eliminar usuario"
+                            title={t("admin.deleteTitle")}
                           >
                             🗑️
                           </button>
@@ -217,14 +218,14 @@ export default function Admin() {
               {!loading && users.length === 0 && (
                 <tr>
                   <td colSpan={5} className="admin-empty">
-                    No hay usuarios registrados.
+                    {t("admin.empty")}
                   </td>
                 </tr>
               )}
               {loading && (
                 <tr>
                   <td colSpan={5} className="admin-empty">
-                    Cargando usuarios…
+                    {t("admin.loading")}
                   </td>
                 </tr>
               )}

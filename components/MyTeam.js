@@ -4,6 +4,8 @@ import { useState } from "react";
 import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag, FLAGS } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import { teamName } from "../lib/i18n";
+import { useLang } from "./LanguageContext";
 import AddToCalendar from "./AddToCalendar";
 import MyTeamPlayoff from "./MyTeamPlayoff";
 import { useAuth } from "./AuthContext";
@@ -11,16 +13,17 @@ import AuthModal from "./AuthModal";
 
 const DEFAULT_TEAM = "Argentina";
 
-function TeamLabel({ name }) {
+function TeamLabel({ name, lang }) {
   return (
     <span>
-      {flag(name)} {name}
+      {flag(name)} {teamName(name, lang)}
     </span>
   );
 }
 
 export default function MyTeam({ tz }) {
   const { user, ready, updatePrefs } = useAuth();
+  const { lang, t } = useLang();
   const [authOpen, setAuthOpen] = useState(false);
 
   const [picking, setPicking] = useState(false);
@@ -33,10 +36,10 @@ export default function MyTeam({ tz }) {
     return (
       <div className="locked-screen">
         <div className="locked-icon">🔒</div>
-        <h2>Iniciá sesión para ver tu equipo</h2>
-        <p>Elegí tu selección favorita y seguí todos sus partidos.</p>
+        <h2>{t("myteam.locked.title")}</h2>
+        <p>{t("myteam.locked.sub")}</p>
         <button className="auth-submit" onClick={() => setAuthOpen(true)}>
-          Iniciar sesión
+          {t("common.signin")}
         </button>
         <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       </div>
@@ -60,10 +63,10 @@ export default function MyTeam({ tz }) {
       <div className="myteam-header">
         <div className="myteam-label">
           <span className="myteam-flag">{flag(myTeam)}</span>
-          <h2>{myTeam}</h2>
+          <h2>{teamName(myTeam, lang)}</h2>
         </div>
         <button className="btn-change" onClick={() => setPicking((v) => !v)}>
-          {picking ? "Cancelar" : "Cambiar equipo"}
+          {picking ? t("common.cancel") : t("myteam.change")}
         </button>
       </div>
 
@@ -72,19 +75,19 @@ export default function MyTeam({ tz }) {
           className={`myteam-tab ${section === "grupos" ? "active" : ""}`}
           onClick={() => setSection("grupos")}
         >
-          🏟️ Fase de grupos
+          {t("tab.groupstage")}
         </button>
         <button
           className={`myteam-tab ${section === "playoff" ? "active" : ""}`}
           onClick={() => setSection("playoff")}
         >
-          🏆 Playoffs
+          {t("tab.playoffs")}
         </button>
       </div>
 
       {picking && (
         <div className="team-picker">
-          <p className="picker-hint">Elegí tu equipo:</p>
+          <p className="picker-hint">{t("myteam.pick")}</p>
           <div className="picker-grid">
             {allTeams.map((team) => (
               <button
@@ -92,7 +95,7 @@ export default function MyTeam({ tz }) {
                 className={`picker-item ${team === myTeam ? "selected" : ""}`}
                 onClick={() => handleSelect(team)}
               >
-                {flag(team)} {team}
+                {flag(team)} {teamName(team, lang)}
               </button>
             ))}
           </div>
@@ -101,7 +104,7 @@ export default function MyTeam({ tz }) {
 
       {section === "grupos" && (
         matches.length === 0 ? (
-          <p className="no-matches">No hay partidos para este equipo.</p>
+          <p className="no-matches">{t("myteam.noMatches")}</p>
         ) : (
           <div className="myteam-matches">
             {matches.map((m, i) => {
@@ -110,14 +113,14 @@ export default function MyTeam({ tz }) {
               return (
                 <div className="match match--highlight" key={i}>
                   <div className="when">
-                    <div className="date">{formatDate(instant, tz)}</div>
-                    <div className="time">{formatTime(instant, tz)}</div>
+                    <div className="date">{formatDate(instant, tz, lang)}</div>
+                    <div className="time">{formatTime(instant, tz, lang)}</div>
                     <AddToCalendar
                       home={m.home}
                       away={m.away}
                       venue={m.venue}
                       city={m.city}
-                      label={`Grupo ${m.group}`}
+                      label={t("group.badge", { g: m.group })}
                       start={instant}
                       compact
                     />
@@ -125,17 +128,19 @@ export default function MyTeam({ tz }) {
                   <div className="vs">
                     <div className="teams">
                       <span className={isHome ? "my-team-name" : ""}>
-                        <TeamLabel name={m.home} />
+                        <TeamLabel name={m.home} lang={lang} />
                       </span>
-                      <span className="sep">vs</span>
+                      <span className="sep">{t("vs")}</span>
                       <span className={!isHome ? "my-team-name" : ""}>
-                        <TeamLabel name={m.away} />
+                        <TeamLabel name={m.away} lang={lang} />
                       </span>
                     </div>
                     <div className="venue">
                       📍 {m.venue}, {m.city}
                     </div>
-                    <div className="group-badge-small">Grupo {m.group}</div>
+                    <div className="group-badge-small">
+                      {t("group.badge", { g: m.group })}
+                    </div>
                   </div>
                 </div>
               );

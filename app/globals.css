@@ -1138,6 +1138,62 @@ body {
   cursor: pointer;
 }
 
+/* ── Selector de idioma (sidebar) ─────────────────────────── */
+.lang-compact {
+  position: relative;
+  margin: 0 16px 12px;
+}
+
+.lang-chip {
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.lang-chip:hover {
+  background: #143244;
+}
+
+.lang-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.lang-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.lang-option:hover {
+  background: #143244;
+}
+.lang-option.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
 .account-row--select {
   flex-wrap: wrap;
   gap: 8px;

@@ -5,6 +5,8 @@ import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatTime, dayKey } from "../lib/timezone";
+import { teamName, roundName, roundShort, langToLocale } from "../lib/i18n";
+import { useLang } from "./LanguageContext";
 
 // Lista unificada de TODOS los partidos (grupos + eliminatorias), con etiqueta
 // de fase y su instante absoluto. Los instantes son fijos; el agrupado por
@@ -18,22 +20,10 @@ const ALL_MATCHES = [
 
 const KNOCKOUT_LABELS = new Set(ROUNDS.map((r) => r.name));
 
-// Nombre corto de la instancia para la tarjeta de la grilla (espacio acotado).
-const ROUND_SHORT = {
-  "Ronda de 32": "Ronda de 32",
-  "Octavos de final": "Octavos",
-  "Cuartos de final": "Cuartos",
-  Semifinales: "Semifinal",
-  "Tercer puesto": "3.º puesto",
-  Final: "Final",
-};
-
 // Grilla semanal (desktop): alto por hora y duración visual de un partido.
 const HOUR_H = 56; // px por hora
 const BLOCK_MIN = 120; // bloque de 2 h por partido
 const PX_PER_MIN = HOUR_H / 60;
-
-const DAY_NAMES = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
 
 // ── Helpers de fechas (operan sobre claves "AAAA-MM-DD") ──────────────────
 function parseKey(key) {
@@ -55,9 +45,9 @@ function addDays(key, n) {
   dt.setUTCDate(dt.getUTCDate() + n);
   return fmtKey(dt);
 }
-// "Jueves, 11 jun" (capitalizado)
-function dayLabel(key) {
-  const s = new Intl.DateTimeFormat("es-ES", {
+// "Jueves, 11 jun" (capitalizado) — `locale` según el idioma activo.
+function dayLabel(key, locale) {
+  const s = new Intl.DateTimeFormat(locale, {
     timeZone: "UTC",
     weekday: "long",
     day: "numeric",
@@ -66,9 +56,9 @@ function dayLabel(key) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 // "11 – 14 jun" / "29 jun – 5 jul"
-function weekRange(firstKey, lastKey) {
+function weekRange(firstKey, lastKey, locale) {
   const m = (k) =>
-    new Intl.DateTimeFormat("es-ES", { timeZone: "UTC", month: "short" }).format(
+    new Intl.DateTimeFormat(locale, { timeZone: "UTC", month: "short" }).format(
       parseKey(k)
     );
   const d = (k) => parseKey(k).getUTCDate();
@@ -121,6 +111,16 @@ function layoutColumn(items) {
 }
 
 export default function Calendar({ tz }) {
+  const { lang, t } = useLang();
+  const locale = langToLocale(lang);
+  const DAY_NAMES = t("cal.dayNames");
+
+  // Etiqueta de fase traducida (grupo "Grupo X" o nombre de ronda).
+  const matchLabel = (m) =>
+    m.group ? t("group.badge", { g: m.group }) : roundName(m.label, lang);
+  const matchShort = (m) =>
+    m.group ? t("group.badge", { g: m.group }) : roundShort(m.label, lang);
+
   const [now, setNow] = useState(null); // ms; null en SSR
   const [todayKey, setTodayKey] = useState(null);
   const [weekIdx, setWeekIdx] = useState(0);
@@ -200,7 +200,7 @@ export default function Calendar({ tz }) {
               className="cw-nav-btn"
               onClick={() => setWeekIdx((i) => Math.max(0, i - 1))}
               disabled={safeIdx === 0}
-              aria-label="Semana anterior"
+              aria-label={t("cal.prevWeek")}
             >
               ←
             </button>
@@ -213,7 +213,7 @@ export default function Calendar({ tz }) {
                 setWeekIdx(i >= 0 ? i : 0);
               }}
             >
-              Hoy
+              {t("cal.today")}
             </button>
             <button
               className="cw-nav-btn"
@@ -221,16 +221,16 @@ export default function Calendar({ tz }) {
                 setWeekIdx((i) => Math.min(weekStarts.length - 1, i + 1))
               }
               disabled={safeIdx === weekStarts.length - 1}
-              aria-label="Semana siguiente"
+              aria-label={t("cal.nextWeek")}
             >
               →
             </button>
           </div>
           <span className="cw-range">
-            Semana {safeIdx + 1}
+            {t("cal.week", { n: safeIdx + 1 })}
             {weekStart && (
               <span className="cw-range-dates">
-                · {weekRange(columns[0].key, columns[6].key)}
+                · {weekRange(columns[0].key, columns[6].key, locale)}
               </span>
             )}
           </span>
@@ -306,7 +306,7 @@ export default function Calendar({ tz }) {
                         <div
                           className={`cw-event ${ko ? "cw-event--ko" : ""}`}
                           key={j}
-                          title={`${it.m.home} vs ${it.m.away} · ${it.m.label} · ${it.m.venue}, ${it.m.city}`}
+                          title={`${teamName(it.m.home, lang)} ${t("vs")} ${teamName(it.m.away, lang)} · ${matchLabel(it.m)} · ${it.m.venue}, ${it.m.city}`}
                           style={{
                             top,
                             height,
@@ -316,17 +316,17 @@ export default function Calendar({ tz }) {
                         >
                           {ko && (
                             <span className="cw-ev-round">
-                              {ROUND_SHORT[it.m.label] || it.m.label}
+                              {matchShort(it.m)}
                             </span>
                           )}
                           <span className="cw-ev-time">
-                            {formatTime(it.m.instant, tz)}
+                            {formatTime(it.m.instant, tz, lang)}
                           </span>
                           <span className="cw-ev-team">
-                            {flag(it.m.home)} {it.m.home}
+                            {flag(it.m.home)} {teamName(it.m.home, lang)}
                           </span>
                           <span className="cw-ev-team">
-                            {flag(it.m.away)} {it.m.away}
+                            {flag(it.m.away)} {teamName(it.m.away, lang)}
                           </span>
                         </div>
                       );
@@ -352,8 +352,7 @@ export default function Calendar({ tz }) {
       {/* ── Vista lista por semana/día (mobile) ── */}
       <div className="cal-list">
         <p className="tz-text" style={{ marginTop: 0, marginBottom: 18 }}>
-          Todos los partidos del torneo, semana por semana. Los horarios están en
-          tu zona horaria.
+          {t("cal.intro")}
         </p>
 
         {listWeeks.map((week, i) => {
@@ -363,11 +362,13 @@ export default function Calendar({ tz }) {
           return (
             <section className="cal-week" key={week.start}>
               <h2 className="cal-week-title">
-                Semana {i + 1}
+                {t("cal.week", { n: i + 1 })}
                 <span className="cal-week-range">
-                  · {weekRange(first, last)}
+                  · {weekRange(first, last, locale)}
                 </span>
-                <span className="cal-week-count">{total} partidos</span>
+                <span className="cal-week-count">
+                  {total} {t("cal.match.other")}
+                </span>
               </h2>
 
               {week.days.map((day) => (
@@ -378,13 +379,15 @@ export default function Calendar({ tz }) {
                   key={day.key}
                 >
                   <div className="cal-day-head">
-                    <span className="cal-day-name">{dayLabel(day.key)}</span>
+                    <span className="cal-day-name">{dayLabel(day.key, locale)}</span>
                     {day.key === todayKey && (
-                      <span className="cal-today-chip">Hoy</span>
+                      <span className="cal-today-chip">{t("cal.today")}</span>
                     )}
                     <span className="cal-day-count">
                       {day.matches.length}{" "}
-                      {day.matches.length === 1 ? "partido" : "partidos"}
+                      {day.matches.length === 1
+                        ? t("cal.match.one")
+                        : t("cal.match.other")}
                     </span>
                   </div>
 
@@ -392,13 +395,13 @@ export default function Calendar({ tz }) {
                     {day.matches.map((m, j) => (
                       <div className="cal-match" key={j}>
                         <span className="cal-match-time">
-                          {formatTime(m.instant, tz)}
+                          {formatTime(m.instant, tz, lang)}
                         </span>
                         <span className="cal-match-main">
                           <span className="cal-match-teams">
-                            {flag(m.home)} {m.home}
-                            <span className="sep">vs</span>
-                            {flag(m.away)} {m.away}
+                            {flag(m.home)} {teamName(m.home, lang)}
+                            <span className="sep">{t("vs")}</span>
+                            {flag(m.away)} {teamName(m.away, lang)}
                           </span>
                           <span className="cal-match-venue">
                             📍 {m.venue}, {m.city}
@@ -411,7 +414,7 @@ export default function Calendar({ tz }) {
                               : ""
                           }`}
                         >
-                          {m.label}
+                          {matchLabel(m)}
                         </span>
                       </div>
                     ))}

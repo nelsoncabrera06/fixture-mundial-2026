@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAuth } from "./AuthContext";
+import { useLang } from "./LanguageContext";
 
 function GoogleIcon() {
   return (
@@ -28,6 +29,7 @@ function GoogleIcon() {
 
 export default function AuthModal({ open, onClose }) {
   const { signIn, signInWithGoogle } = useAuth();
+  const { t } = useLang();
   const [mode, setMode] = useState("login"); // "login" | "register"
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -71,7 +73,7 @@ export default function AuthModal({ open, onClose }) {
     e.preventDefault();
     setError("");
     if (mode === "register" && password !== confirm) {
-      setError("Las contraseñas no coinciden.");
+      setError(t("auth.pwdMismatch"));
       return;
     }
     setBusy(true);
@@ -97,11 +99,11 @@ export default function AuthModal({ open, onClose }) {
         role="dialog"
         aria-modal="true"
       >
-        <button className="auth-close" onClick={close} aria-label="Cerrar">
+        <button className="auth-close" onClick={close} aria-label={t("auth.close")}>
           ×
         </button>
         <h2 className="auth-title">
-          {mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
+          {mode === "login" ? t("auth.login") : t("auth.register")}
         </h2>
 
         <div className="auth-tabs">
@@ -110,21 +112,21 @@ export default function AuthModal({ open, onClose }) {
             className={`auth-tab ${mode === "login" ? "active" : ""}`}
             onClick={() => switchMode("login")}
           >
-            Ingresar
+            {t("auth.tab.login")}
           </button>
           <button
             type="button"
             className={`auth-tab ${mode === "register" ? "active" : ""}`}
             onClick={() => switchMode("register")}
           >
-            Registrarse
+            {t("auth.tab.register")}
           </button>
         </div>
 
         <form className="auth-form" onSubmit={submit}>
           {mode === "register" && (
             <label className="auth-field">
-              <span>Usuario</span>
+              <span>{t("auth.username")}</span>
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -135,7 +137,7 @@ export default function AuthModal({ open, onClose }) {
           )}
 
           <label className="auth-field">
-            <span>Email</span>
+            <span>{t("auth.email")}</span>
             <input
               type="email"
               value={email}
@@ -146,7 +148,7 @@ export default function AuthModal({ open, onClose }) {
           </label>
 
           <label className="auth-field">
-            <span>Contraseña</span>
+            <span>{t("auth.password")}</span>
             <input
               type="password"
               value={password}
@@ -157,7 +159,7 @@ export default function AuthModal({ open, onClose }) {
 
           {mode === "register" && (
             <label className="auth-field">
-              <span>Confirmar contraseña</span>
+              <span>{t("auth.confirm")}</span>
               <input
                 type="password"
                 value={confirm}
@@ -171,15 +173,15 @@ export default function AuthModal({ open, onClose }) {
 
           <button type="submit" className="auth-submit" disabled={busy}>
             {busy
-              ? "Procesando…"
+              ? t("auth.processing")
               : mode === "login"
-                ? "Ingresar"
-                : "Crear cuenta"}
+                ? t("auth.tab.login")
+                : t("auth.register")}
           </button>
         </form>
 
         <div className="auth-divider">
-          <span>o</span>
+          <span>{t("auth.or")}</span>
         </div>
 
         <button
@@ -189,7 +191,7 @@ export default function AuthModal({ open, onClose }) {
           disabled={busy}
         >
           <GoogleIcon />
-          Continuar con Google
+          {t("auth.google")}
         </button>
       </div>
     </div>

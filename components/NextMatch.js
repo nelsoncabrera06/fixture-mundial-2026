@@ -5,6 +5,8 @@ import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import { teamName, roundName } from "../lib/i18n";
+import { useLang } from "./LanguageContext";
 import AddToCalendar from "./AddToCalendar";
 
 // Un partido se considera "mirable" (en juego) hasta 2 h después del inicio.
@@ -21,25 +23,29 @@ const ALL_MATCHES = [
 const FIRST_KICKOFF = Math.min(...ALL_MATCHES.map((m) => m.t));
 
 // "Faltan 3 d 4 h" / "Faltan 2 h 15 min" / "Faltan 12 min"
-function countdown(ms) {
+function countdown(ms, t) {
   const totalMin = Math.floor(ms / 60000);
   const days = Math.floor(totalMin / 1440);
   const hours = Math.floor((totalMin % 1440) / 60);
   const mins = totalMin % 60;
-  if (days > 0) return `Faltan ${days} d ${hours} h`;
-  if (hours > 0) return `Faltan ${hours} h ${mins} min`;
-  return `Faltan ${mins} min`;
+  if (days > 0) return t("nm.count.days", { d: days, h: hours });
+  if (hours > 0) return t("nm.count.hours", { h: hours, m: mins });
+  return t("nm.count.mins", { m: mins });
 }
 
-function TeamRow({ name }) {
+function TeamRow({ name, lang }) {
   return (
     <span className="nm-team">
-      <span className="nm-flag">{flag(name)}</span> {name}
+      <span className="nm-flag">{flag(name)}</span> {teamName(name, lang)}
     </span>
   );
 }
 
 export default function NextMatch({ tz }) {
+  const { lang, t } = useLang();
+  // Etiqueta traducida del partido: grupo o nombre de ronda.
+  const matchLabel = (m) =>
+    m.group ? t("group.badge", { g: m.group }) : roundName(m.label, lang);
   // `now` arranca en null y se setea al montar, para no romper la hidratación
   // (el reloj del server al prerenderizar no coincide con el del cliente).
   const [now, setNow] = useState(null);
@@ -62,8 +68,8 @@ export default function NextMatch({ tz }) {
       <div className="nextmatch">
         <div className="nm-card nm-card--empty">
           <div className="nm-trophy">🏆</div>
-          <h2>El Mundial terminó</h2>
-          <p>No quedan más partidos por jugarse. ¡Gracias por seguirlo!</p>
+          <h2>{t("nm.ended.title")}</h2>
+          <p>{t("nm.ended.sub")}</p>
         </div>
       </div>
     );
@@ -84,20 +90,20 @@ export default function NextMatch({ tz }) {
         <div className="nm-status">
           {started ? (
             <span className="nm-now">
-              <span className="nm-dot" /> En juego ahora
+              <span className="nm-dot" /> {t("nm.live")}
             </span>
           ) : (
             <span className="nm-label">
-              {isInaugural ? "🎉 Partido inaugural" : "⏭️ Siguiente partido"}
+              {isInaugural ? t("nm.inaugural") : t("nm.next")}
             </span>
           )}
-          {!started && <span className="nm-countdown">{countdown(diff)}</span>}
+          {!started && (
+            <span className="nm-countdown">{countdown(diff, t)}</span>
+          )}
         </div>
 
         {matches.length > 1 && (
-          <p className="nm-simul">
-            🔥 {matches.length} partidos en simultáneo
-          </p>
+          <p className="nm-simul">{t("nm.simul", { n: matches.length })}</p>
         )}
 
         <div className="nm-list">
@@ -106,24 +112,24 @@ export default function NextMatch({ tz }) {
             return (
               <div className="nm-match" key={i}>
                 <div className="nm-teams">
-                  <TeamRow name={m.home} />
-                  <span className="nm-vs">vs</span>
-                  <TeamRow name={m.away} />
+                  <TeamRow name={m.home} lang={lang} />
+                  <span className="nm-vs">{t("vs")}</span>
+                  <TeamRow name={m.away} lang={lang} />
                 </div>
                 <div className="nm-when">
-                  📅 {formatDate(instant, tz)} · {formatTime(instant, tz)}
+                  📅 {formatDate(instant, tz, lang)} · {formatTime(instant, tz, lang)}
                 </div>
                 <div className="nm-venue">
                   📍 {m.venue}, {m.city}
                 </div>
-                <div className="nm-group">{m.label}</div>
+                <div className="nm-group">{matchLabel(m)}</div>
                 <div className="nm-cal">
                   <AddToCalendar
                     home={m.home}
                     away={m.away}
                     venue={m.venue}
                     city={m.city}
-                    label={m.label}
+                    label={matchLabel(m)}
                     start={instant}
                   />
                 </div>

@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { CONTACT } from "../lib/about";
 import { useAuth } from "./AuthContext";
+import { useLang } from "./LanguageContext";
 import AuthModal from "./AuthModal";
 
 // Formulario de contacto vía Web3Forms. Requiere sesión iniciada: el nombre y el
 // email salen del perfil (tabla profiles), así no llegan mensajes anónimos.
 export default function ContactForm() {
   const { user, ready } = useAuth();
+  const { t } = useLang();
   const [authOpen, setAuthOpen] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | sending | ok | error
 
@@ -22,12 +24,10 @@ export default function ContactForm() {
     return (
       <section className="about-card contact-locked">
         <div className="locked-icon">🔒</div>
-        <h3>Iniciá sesión para escribirme</h3>
-        <p className="about-note">
-          Así sé quién me escribe — nada de mensajes anónimos.
-        </p>
+        <h3>{t("contact.locked.title")}</h3>
+        <p className="about-note">{t("contact.locked.sub")}</p>
         <button className="auth-submit" onClick={() => setAuthOpen(true)}>
-          Iniciar sesión
+          {t("common.signin")}
         </button>
         <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       </section>
@@ -74,14 +74,14 @@ export default function ContactForm() {
     return (
       <section className="about-card contact-done">
         <div className="contact-done-icon">🙌</div>
-        <h3>¡Gracias por escribir!</h3>
-        <p>Tu mensaje llegó. Te respondo apenas pueda.</p>
+        <h3>{t("contact.done.title")}</h3>
+        <p>{t("contact.done.sub")}</p>
         <button
           type="button"
           className="about-link"
           onClick={() => setStatus("idle")}
         >
-          Enviar otro
+          {t("contact.done.again")}
         </button>
       </section>
     );
@@ -89,13 +89,11 @@ export default function ContactForm() {
 
   return (
     <section className="about-card">
-      <h3 className="about-subtitle">✉️ Escribime</h3>
-      <p className="about-note">
-        ¿Una sugerencia, un saludo o encontraste un bug? Contame:
-      </p>
+      <h3 className="about-subtitle">{t("contact.title")}</h3>
+      <p className="about-note">{t("contact.sub")}</p>
 
       <div className="contact-as">
-        Escribís como <strong>{user.username}</strong>{" "}
+        {t("contact.asPre")}<strong>{user.username}</strong>{" "}
         <span className="contact-as-mail">· {user.email}</span>
       </div>
 
@@ -110,7 +108,7 @@ export default function ContactForm() {
         />
 
         <label className="contact-field">
-          <span>Mensaje</span>
+          <span>{t("contact.message")}</span>
           <textarea name="message" required rows={4} maxLength={1500} />
         </label>
 
@@ -119,13 +117,11 @@ export default function ContactForm() {
           className="contact-submit"
           disabled={status === "sending"}
         >
-          {status === "sending" ? "Enviando…" : "Enviar mensaje"}
+          {status === "sending" ? t("contact.sending") : t("contact.send")}
         </button>
 
         {status === "error" && (
-          <p className="contact-error">
-            Uy, no se pudo enviar. Probá de nuevo o escribime por LinkedIn.
-          </p>
+          <p className="contact-error">{t("contact.error")}</p>
         )}
       </form>
     </section>

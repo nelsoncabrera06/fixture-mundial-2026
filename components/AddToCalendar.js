@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { flag } from "../lib/teams";
+import { teamName } from "../lib/i18n";
+import { useLang } from "./LanguageContext";
 import { googleCalUrl, outlookCalUrl, icsDataUri } from "../lib/calendar";
 
 // Botón "Agregar al calendario" con menú (Google / Outlook / Apple u otro).
@@ -16,6 +18,7 @@ export default function AddToCalendar({
   start,
   compact = false,
 }) {
+  const { lang, t } = useLang();
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
@@ -34,9 +37,9 @@ export default function AddToCalendar({
     };
   }, [open]);
 
-  const title = `${flag(home)} ${home} vs ${flag(away)} ${away}`;
+  const title = `${flag(home)} ${teamName(home, lang)} ${t("vs")} ${flag(away)} ${teamName(away, lang)}`;
   const location = [venue, city].filter(Boolean).join(", ");
-  const details = `${label} · Mundial 2026\nhttps://fixturemundial.vercel.app`;
+  const details = `${label} · ${t("event.worldcup")}\nhttps://fixturemundial.vercel.app`;
   const event = { title, start, location, details };
 
   const fileName = `${home}-vs-${away}`
@@ -53,10 +56,10 @@ export default function AddToCalendar({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Agregar al calendario"
-        title="Agregar al calendario"
+        aria-label={t("atc.add")}
+        title={t("atc.add")}
       >
-        📅{compact ? "" : " Agregar al calendario"}
+        📅{compact ? "" : ` ${t("atc.add")}`}
       </button>
       {open && (
         <div className="atc-menu" role="menu">
@@ -87,7 +90,7 @@ export default function AddToCalendar({
             download={`${fileName}.ics`}
             onClick={() => setOpen(false)}
           >
-            <span className="atc-ico">🍎</span> Apple u otro (.ics)
+            <span className="atc-ico">🍎</span> {t("atc.apple")}
           </a>
         </div>
       )}

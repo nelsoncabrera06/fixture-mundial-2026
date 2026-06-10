@@ -3,19 +3,22 @@
 import { GROUP_NAMES, GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
+import { teamName } from "../lib/i18n";
+import { useLang } from "./LanguageContext";
 import { getResult } from "../lib/results";
 import { computeStandings } from "../lib/standings";
 import AddToCalendar from "./AddToCalendar";
 
-function TeamLabel({ name }) {
+function TeamLabel({ name, lang }) {
   return (
     <span>
-      {flag(name)} {name}
+      {flag(name)} {teamName(name, lang)}
     </span>
   );
 }
 
 export default function Groups({ tz, group, onSelectGroup }) {
+  const { lang, t } = useLang();
   const active = GROUP_NAMES.includes(group) ? group : GROUP_NAMES[0];
 
   const standings = computeStandings(active);
@@ -41,7 +44,7 @@ export default function Groups({ tz, group, onSelectGroup }) {
       </div>
 
       <h2 className="gd-title">
-        <span className="group-badge">Grupo {active}</span>
+        <span className="group-badge">{t("group.badge", { g: active })}</span>
       </h2>
 
       {/* Tabla de posiciones */}
@@ -50,15 +53,15 @@ export default function Groups({ tz, group, onSelectGroup }) {
           <thead>
             <tr>
               <th className="st-pos">#</th>
-              <th className="st-team">Equipo</th>
-              <th title="Partidos jugados">PJ</th>
-              <th title="Ganados">PG</th>
-              <th title="Empatados">PE</th>
-              <th title="Perdidos">PP</th>
-              <th title="Goles a favor">GF</th>
-              <th title="Goles en contra">GC</th>
-              <th title="Diferencia de gol">DG</th>
-              <th title="Puntos">Pts</th>
+              <th className="st-team">{t("standings.team")}</th>
+              <th title={t("st.pj.t")}>{t("st.pj")}</th>
+              <th title={t("st.pg.t")}>{t("st.pg")}</th>
+              <th title={t("st.pe.t")}>{t("st.pe")}</th>
+              <th title={t("st.pp.t")}>{t("st.pp")}</th>
+              <th title={t("st.gf.t")}>{t("st.gf")}</th>
+              <th title={t("st.gc.t")}>{t("st.gc")}</th>
+              <th title={t("st.dg.t")}>{t("st.dg")}</th>
+              <th title={t("st.pts.t")}>{t("st.pts")}</th>
             </tr>
           </thead>
           <tbody>
@@ -67,7 +70,7 @@ export default function Groups({ tz, group, onSelectGroup }) {
                 <td className="st-pos">{i + 1}</td>
                 <td className="st-team">
                   <span className="st-flag">{flag(row.team)}</span>
-                  {row.team}
+                  {teamName(row.team, lang)}
                 </td>
                 <td>{row.pj}</td>
                 <td>{row.pg}</td>
@@ -84,14 +87,11 @@ export default function Groups({ tz, group, onSelectGroup }) {
       </div>
 
       {!anyPlayed && (
-        <p className="gd-note">
-          Todavía no se jugaron partidos de este grupo: la tabla arranca en cero
-          y se va actualizando con cada resultado.
-        </p>
+        <p className="gd-note">{t("groups.noMatches")}</p>
       )}
 
       {/* Partidos del grupo */}
-      <h3 className="gd-subtitle">Partidos</h3>
+      <h3 className="gd-subtitle">{t("groups.matches")}</h3>
       <div className="gd-matches">
         {matches.map((m, i) => {
           const instant = kickoff(m);
@@ -100,30 +100,30 @@ export default function Groups({ tz, group, onSelectGroup }) {
           return (
             <div className="gd-match" key={i}>
               <div className="gd-match-when">
-                {formatDate(instant, tz)} · {formatTime(instant, tz)}
+                {formatDate(instant, tz, lang)} · {formatTime(instant, tz, lang)}
                 <AddToCalendar
                   home={m.home}
                   away={m.away}
                   venue={m.venue}
                   city={m.city}
-                  label={`Grupo ${active}`}
+                  label={t("group.badge", { g: active })}
                   start={instant}
                   compact
                 />
               </div>
               <div className="gd-match-row">
                 <span className="gd-home">
-                  <TeamLabel name={m.home} />
+                  <TeamLabel name={m.home} lang={lang} />
                 </span>
                 {played ? (
                   <span className="gd-score">
                     {r.homeGoals} <span className="gd-dash">-</span> {r.awayGoals}
                   </span>
                 ) : (
-                  <span className="gd-vs">vs</span>
+                  <span className="gd-vs">{t("vs")}</span>
                 )}
                 <span className="gd-away">
-                  <TeamLabel name={m.away} />
+                  <TeamLabel name={m.away} lang={lang} />
                 </span>
               </div>
               <div className="gd-match-venue">

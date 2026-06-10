@@ -12,7 +12,9 @@ import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
 import MyAccount from "../components/MyAccount";
 import Admin from "../components/Admin";
+import LanguagePicker from "../components/LanguagePicker";
 import { useAuth } from "../components/AuthContext";
+import { useLang } from "../components/LanguageContext";
 import { DEFAULT_TZ } from "../lib/timezone";
 
 
@@ -20,6 +22,7 @@ const TZ_STORAGE_KEY = "fixture2026.tz";
 
 export default function Home() {
   const { user, updatePrefs } = useAuth();
+  const { t } = useLang();
   const [tab, setTab] = useState("grupos");
   const [tz, setTz] = useState(DEFAULT_TZ);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -61,23 +64,23 @@ export default function Home() {
 
   // Secciones de la barra lateral. Agregá más ítems acá a futuro.
   const sections = [
-    { id: "grupos", label: "Fase de grupos", icon: "🏟️" },
-    { id: "playoff", label: "Playoffs", icon: "🏆" },
-    { id: "detalle", label: "Grupos", icon: "📊" },
-    { id: "calendario", label: "Calendario", icon: "📅" },
-    { id: "siguiente", label: "Siguiente partido", icon: "⏭️" },
-    { id: "miequipo", label: "Mi equipo", icon: "⭐" },
-    { id: "favoritos", label: "Favoritos", icon: "❤️" },
+    { id: "grupos", label: t("nav.grupos"), icon: "🏟️" },
+    { id: "playoff", label: t("nav.playoff"), icon: "🏆" },
+    { id: "detalle", label: t("nav.detalle"), icon: "📊" },
+    { id: "calendario", label: t("nav.calendario"), icon: "📅" },
+    { id: "siguiente", label: t("nav.siguiente"), icon: "⏭️" },
+    { id: "miequipo", label: t("nav.miequipo"), icon: "⭐" },
+    { id: "favoritos", label: t("nav.favoritos"), icon: "❤️" },
     {
       id: "cuenta",
-      label: user ? "Mi cuenta" : "Login",
+      label: user ? t("nav.cuenta") : t("nav.login"),
       icon: "👤",
     },
-    { id: "sobre", label: "Contacto", icon: "✉️" },
+    { id: "sobre", label: t("nav.sobre"), icon: "✉️" },
   ];
   // La sección Admin solo aparece para usuarios con rol admin.
   if (user?.role === "admin") {
-    sections.push({ id: "admin", label: "Admin", icon: "🛡️" });
+    sections.push({ id: "admin", label: t("nav.admin"), icon: "🛡️" });
   }
 
   return (
@@ -86,8 +89,8 @@ export default function Home() {
         <div className="brand">
           <span className="brand-mark">⚽</span>
           <div>
-            <div className="brand-title">Mundial 2026</div>
-            <div className="brand-sub">Canadá · México · EE.UU.</div>
+            <div className="brand-title">{t("brand.title")}</div>
+            <div className="brand-sub">{t("brand.sub")}</div>
           </div>
         </div>
         <nav className="nav">
@@ -102,11 +105,12 @@ export default function Home() {
             </button>
           ))}
         </nav>
+        <LanguagePicker />
         <button
           className="sidebar-hide"
           onClick={() => setSidebarOpen(false)}
-          aria-label="Ocultar menú"
-          title="Ocultar menú"
+          aria-label={t("sidebar.hide")}
+          title={t("sidebar.hide")}
         >
           <span className="sidebar-hide-arrow">←</span>
         </button>
@@ -119,8 +123,8 @@ export default function Home() {
               <button
                 className="sidebar-toggle"
                 onClick={() => setSidebarOpen(true)}
-                aria-label="Mostrar menú"
-                title="Mostrar menú"
+                aria-label={t("sidebar.show")}
+                title={t("sidebar.show")}
               >
                 ☰
               </button>
@@ -128,7 +132,7 @@ export default function Home() {
             <header className="header">
               <h1>{sections.find((s) => s.id === tab)?.label}</h1>
               {tab !== "sobre" && (
-                <div className="sub">Del 11 de junio al 19 de julio de 2026</div>
+                <div className="sub">{t("header.dates")}</div>
               )}
             </header>
           </div>
@@ -147,12 +151,11 @@ export default function Home() {
           {tab === "admin" && <Admin />}
 
           <footer className="footer">
-            Horarios orientativos convertidos a tu zona horaria. Equipos y grupos
-            confirmados; fechas, sedes y horarios pueden ajustarse — verificá en{" "}
+            {t("footer.pre")}
             <a href="https://www.fifa.com/es" target="_blank" rel="noreferrer">
               fifa.com
             </a>
-            .
+            {t("footer.post")}
           </footer>
         </div>
       </main>

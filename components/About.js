@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { AUTHOR, LINKS, DONATIONS, CONTACT } from "../lib/about";
+import { useLang } from "./LanguageContext";
 import ContactForm from "./ContactForm";
 
 // Fila de cripto con copiar + ver QR + "ya envié". Si no hay dirección, "Próximamente".
 // qrPrefix: esquema para el QR (ej. "lightning:" para Lightning Address). El
 // texto que se copia es siempre la dirección pelada; el prefijo es solo del QR.
 function CryptoRow({ label, address, note, qrPrefix = "" }) {
+  const { t } = useLang();
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
   const [sent, setSent] = useState(false);
@@ -51,14 +53,14 @@ function CryptoRow({ label, address, note, qrPrefix = "" }) {
     <div className="crypto-row">
       <div className="crypto-head">
         <span className="crypto-label">{label}</span>
-        {!address && <span className="crypto-soon">Próximamente</span>}
+        {!address && <span className="crypto-soon">{t("crypto.soon")}</span>}
       </div>
       {address && (
         <>
           <div className="crypto-addr-row">
             <code className="crypto-addr">{address}</code>
             <button type="button" className="copy-btn" onClick={copy}>
-              {copied ? "✓ Copiado" : "Copiar"}
+              {copied ? t("crypto.copied") : t("crypto.copy")}
             </button>
             <button
               type="button"
@@ -66,24 +68,22 @@ function CryptoRow({ label, address, note, qrPrefix = "" }) {
               onClick={() => setShowQR((v) => !v)}
               aria-expanded={showQR}
             >
-              {showQR ? "Ocultar QR" : "Ver QR"}
+              {showQR ? t("crypto.hideQR") : t("crypto.showQR")}
             </button>
           </div>
           {showQR && (
             <div className="crypto-qr">
               <QRCodeSVG value={qrPrefix + address} size={168} marginSize={2} />
-              <span className="crypto-qr-hint">Escaneá con tu wallet</span>
+              <span className="crypto-qr-hint">{t("crypto.scan")}</span>
             </div>
           )}
           {note && <p className="crypto-note">{note}</p>}
 
           {sent ? (
-            <p className="crypto-thanks">
-              💚 ¡Muchas gracias por tu donación! 🙌
-            </p>
+            <p className="crypto-thanks">{t("crypto.thanks")}</p>
           ) : (
             <button type="button" className="sent-btn" onClick={markSent}>
-              Ya envié mi donación
+              {t("crypto.sent")}
             </button>
           )}
         </>
@@ -93,6 +93,7 @@ function CryptoRow({ label, address, note, qrPrefix = "" }) {
 }
 
 export default function About() {
+  const { t } = useLang();
   const hasDonations =
     DONATIONS.cafecito || DONATIONS.kofi || DONATIONS.bitcoin || DONATIONS.usdt;
 
@@ -103,8 +104,8 @@ export default function About() {
         <div className="about-head">
           <span className="about-avatar">⚽</span>
           <div>
-            <h2 className="about-name">Creado por {AUTHOR.name}</h2>
-            <p className="about-tagline">{AUTHOR.tagline}</p>
+            <h2 className="about-name">{t("about.createdBy", { name: AUTHOR.name })}</h2>
+            <p className="about-tagline">{t("about.tagline")}</p>
           </div>
         </div>
 
@@ -135,11 +136,8 @@ export default function About() {
       {/* Donaciones */}
       {hasDonations && (
         <section className="about-card">
-          <h3 className="about-subtitle">Donaciones</h3>
-          <p className="about-note">
-            ¡Apoyá el proyecto! Es gratis y sin publicidad. Si te gustó, podés
-            invitarme algo:
-          </p>
+          <h3 className="about-subtitle">{t("about.donations")}</h3>
+          <p className="about-note">{t("about.donateNote")}</p>
 
           <div className="donate-grid">
             {DONATIONS.cafecito && (
@@ -165,24 +163,24 @@ export default function About() {
           </div>
 
           <div className="crypto-section">
-            <h4 className="crypto-title">Cripto</h4>
+            <h4 className="crypto-title">{t("about.crypto")}</h4>
             <div className="crypto-list">
               <CryptoRow
                 label="⚡ Bitcoin (Lightning)"
                 address={DONATIONS.lightning}
                 qrPrefix="lightning:"
-                note="Pagá con cualquier wallet Lightning — al instante y con fees mínimos. Ideal para propinas."
+                note={t("crypto.note.lightning")}
               />
               <CryptoRow
                 label="₿ Bitcoin (on-chain)"
                 address={DONATIONS.bitcoin}
                 qrPrefix="bitcoin:"
-                note="Red Bitcoin tradicional. Mejor para montos grandes (los fees no convienen para donaciones chicas)."
+                note={t("crypto.note.onchain")}
               />
               <CryptoRow
                 label="₮ USDT"
                 address={DONATIONS.usdt}
-                note="Redes aceptadas: BSC (BEP-20) y Polygon. Enviá USDT solo por estas redes (no por Ethereum)."
+                note={t("crypto.note.usdt")}
               />
             </div>
           </div>

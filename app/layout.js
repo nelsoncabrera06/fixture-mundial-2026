@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "../components/AuthContext";
 import { LanguageProvider } from "../components/LanguageContext";
+import { LiveScoresProvider } from "../components/LiveScoresProvider";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
@@ -14,7 +15,9 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body>
         <LanguageProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <LiveScoresProvider>{children}</LiveScoresProvider>
+          </AuthProvider>
         </LanguageProvider>
         <Analytics />
       </body>

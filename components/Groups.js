@@ -7,6 +7,8 @@ import { teamName } from "../lib/i18n";
 import { useLang } from "./LanguageContext";
 import { getResult } from "../lib/results";
 import { computeStandings } from "../lib/standings";
+import { useLiveResults } from "./LiveScoresProvider";
+import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
 
 function TeamLabel({ name, lang }) {
@@ -19,6 +21,7 @@ function TeamLabel({ name, lang }) {
 
 export default function Groups({ tz, group, onSelectGroup }) {
   const { lang, t } = useLang();
+  useLiveResults(); // re-render cuando llegan marcadores nuevos
   const active = GROUP_NAMES.includes(group) ? group : GROUP_NAMES[0];
 
   const standings = computeStandings(active);
@@ -126,6 +129,11 @@ export default function Groups({ tz, group, onSelectGroup }) {
                   <TeamLabel name={m.away} lang={lang} />
                 </span>
               </div>
+              {played && r.status && (
+                <div className="gd-match-badge">
+                  <LiveBadge status={r.status} elapsed={r.elapsed} />
+                </div>
+              )}
               <div className="gd-match-venue">
                 📍 {m.venue}, {m.city}
               </div>

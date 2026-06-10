@@ -6,7 +6,10 @@ import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundName } from "../lib/i18n";
+import { getResult } from "../lib/results";
 import { useLang } from "./LanguageContext";
+import { useLiveResults } from "./LiveScoresProvider";
+import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
 
 // Un partido se considera "mirable" (en juego) hasta 2 h después del inicio.
@@ -43,6 +46,7 @@ function TeamRow({ name, lang }) {
 
 export default function NextMatch({ tz }) {
   const { lang, t } = useLang();
+  useLiveResults(); // re-render cuando llegan marcadores nuevos
   // Etiqueta traducida del partido: grupo o nombre de ronda.
   const matchLabel = (m) =>
     m.group ? t("group.badge", { g: m.group }) : roundName(m.label, lang);
@@ -109,13 +113,26 @@ export default function NextMatch({ tz }) {
         <div className="nm-list">
           {matches.map((m, i) => {
             const instant = new Date(m.t);
+            const r = getResult(m);
+            const played = !!r && r.homeGoals != null && r.awayGoals != null;
             return (
               <div className="nm-match" key={i}>
                 <div className="nm-teams">
                   <TeamRow name={m.home} lang={lang} />
-                  <span className="nm-vs">{t("vs")}</span>
+                  {played ? (
+                    <span className="nm-vs nm-score">
+                      {r.homeGoals} - {r.awayGoals}
+                    </span>
+                  ) : (
+                    <span className="nm-vs">{t("vs")}</span>
+                  )}
                   <TeamRow name={m.away} lang={lang} />
                 </div>
+                {played && r.status && (
+                  <div className="nm-badge">
+                    <LiveBadge status={r.status} elapsed={r.elapsed} />
+                  </div>
+                )}
                 <div className="nm-when">
                   📅 {formatDate(instant, tz, lang)} · {formatTime(instant, tz, lang)}
                 </div>

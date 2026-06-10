@@ -2740,3 +2740,97 @@ body {
   }
 }
 
+/* ===========================================================================
+   MARCADORES EN VIVO — badge de estado + goles. Reutilizado en GroupStage,
+   Groups (detalle), Knockout y NextMatch. Rojo y pulso compartidos con .nm-dot.
+   =========================================================================== */
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.live-badge--live {
+  color: #ff5470;
+  background: rgba(255, 84, 112, 0.12);
+}
+.live-badge--ht {
+  color: var(--accent);
+  background: var(--accent-2);
+}
+.live-badge--ft {
+  color: var(--muted);
+  background: var(--border);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5470;
+  box-shadow: 0 0 0 0 rgba(255, 84, 112, 0.6);
+  animation: nm-pulse 1.4s infinite;
+}
+
+/* GroupStage: marcador en el separador + badge arriba del partido */
+.match-badge {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+.match .teams .sep.score {
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* Groups (detalle): badge debajo de la fila del marcador */
+.gd-match-badge {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* Knockout: goles a la derecha de cada equipo + badge en lugar del horario */
+.bk-team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.bk-team-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bk-goals {
+  flex: none;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.bk-match--played .bk-team-name {
+  font-weight: 700;
+}
+.bk-when--live {
+  display: flex;
+  justify-content: center;
+}
+
+/* NextMatch: marcador grande en el separador + badge debajo */
+.nm-vs.nm-score {
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+}
+.nm-badge {
+  margin-bottom: 10px;
+}
+

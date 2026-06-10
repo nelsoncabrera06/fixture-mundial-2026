@@ -3,7 +3,10 @@
 import { ROUNDS, kickoff } from "../lib/knockout";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundShort, roundName } from "../lib/i18n";
+import { getResult } from "../lib/results";
 import { useLang } from "./LanguageContext";
+import { useLiveResults } from "./LiveScoresProvider";
+import LiveBadge from "./LiveBadge";
 
 // Índice rápido id -> partido (los datos viven en lib/knockout.js)
 const byId = {};
@@ -29,14 +32,28 @@ function buildTree(id) {
 
 function MatchCard({ match, tz, lang }) {
   const instant = kickoff(match);
+  const r = getResult(match);
+  const played = !!r && r.homeGoals != null && r.awayGoals != null;
   return (
-    <div className="bk-match">
-      <div className="bk-team">{teamName(match.home, lang)}</div>
-      <div className="bk-team">{teamName(match.away, lang)}</div>
-      <div className="bk-when">
-        <span className="t">{formatTime(instant, tz, lang)}</span> ·{" "}
-        {formatDate(instant, tz, lang)}
+    <div className={`bk-match ${played ? "bk-match--played" : ""}`}>
+      <div className="bk-team">
+        <span className="bk-team-name">{teamName(match.home, lang)}</span>
+        {played && <span className="bk-goals">{r.homeGoals}</span>}
       </div>
+      <div className="bk-team">
+        <span className="bk-team-name">{teamName(match.away, lang)}</span>
+        {played && <span className="bk-goals">{r.awayGoals}</span>}
+      </div>
+      {played && r.status ? (
+        <div className="bk-when bk-when--live">
+          <LiveBadge status={r.status} elapsed={r.elapsed} />
+        </div>
+      ) : (
+        <div className="bk-when">
+          <span className="t">{formatTime(instant, tz, lang)}</span> ·{" "}
+          {formatDate(instant, tz, lang)}
+        </div>
+      )}
     </div>
   );
 }
@@ -76,6 +93,7 @@ function Tree({ node, side, tz, lang }) {
 
 export default function Knockout({ tz }) {
   const { lang, t } = useLang();
+  useLiveResults(); // re-render cuando llegan marcadores nuevos
   const left = buildTree("101"); // semifinal izquierda y su rama
   const right = buildTree("102"); // semifinal derecha y su rama
   const full = buildTree("104"); // bracket completo (R32 → Final) para mobile

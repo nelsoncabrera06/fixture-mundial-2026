@@ -4,7 +4,10 @@ import { GROUP_NAMES, GROUPS, GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName } from "../lib/i18n";
+import { getResult } from "../lib/results";
 import { useLang } from "./LanguageContext";
+import { useLiveResults } from "./LiveScoresProvider";
+import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
 
 function TeamLabel({ name, lang }) {
@@ -17,6 +20,7 @@ function TeamLabel({ name, lang }) {
 
 export default function GroupStage({ tz, onOpenGroup }) {
   const { lang, t } = useLang();
+  useLiveResults(); // re-render cuando llegan marcadores nuevos
   return (
     <div className="groups-grid">
       {GROUP_NAMES.map((g) => {
@@ -44,6 +48,8 @@ export default function GroupStage({ tz, onOpenGroup }) {
 
             {matches.map((m, i) => {
               const instant = kickoff(m);
+              const r = getResult(m);
+              const played = !!r && r.homeGoals != null && r.awayGoals != null;
               return (
                 <div className="match" key={i}>
                   <div className="when">
@@ -60,9 +66,20 @@ export default function GroupStage({ tz, onOpenGroup }) {
                     />
                   </div>
                   <div className="vs">
+                    {played && (
+                      <div className="match-badge">
+                        <LiveBadge status={r.status} elapsed={r.elapsed} />
+                      </div>
+                    )}
                     <div className="teams">
                       <TeamLabel name={m.home} lang={lang} />
-                      <span className="sep">{t("vs")}</span>
+                      {played ? (
+                        <span className="sep score">
+                          {r.homeGoals} - {r.awayGoals}
+                        </span>
+                      ) : (
+                        <span className="sep">{t("vs")}</span>
+                      )}
                       <TeamLabel name={m.away} lang={lang} />
                     </div>
                     <div className="venue">

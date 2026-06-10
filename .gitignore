@@ -29,3 +29,6 @@ yarn-error.log*
 
 # local files
 /dev_local
+
+# playwright mcp (logs/screenshots locales)
+/.playwright-mcp

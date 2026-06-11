@@ -7,6 +7,7 @@ import { flag } from "../lib/teams";
 import { formatTime, dayKey } from "../lib/timezone";
 import { teamName, roundName, roundShort, langToLocale } from "../lib/i18n";
 import { useLang } from "./LanguageContext";
+import { useOpenMatch } from "./MatchNavContext";
 
 // Lista unificada de TODOS los partidos (grupos + eliminatorias), con etiqueta
 // de fase y su instante absoluto. Los instantes son fijos; el agrupado por
@@ -112,6 +113,7 @@ function layoutColumn(items) {
 
 export default function Calendar({ tz }) {
   const { lang, t } = useLang();
+  const openMatch = useOpenMatch();
   const locale = langToLocale(lang);
   const DAY_NAMES = t("cal.dayNames");
 
@@ -304,8 +306,17 @@ export default function Calendar({ tz }) {
                       const ko = KNOCKOUT_LABELS.has(it.m.label);
                       return (
                         <div
-                          className={`cw-event ${ko ? "cw-event--ko" : ""}`}
+                          className={`cw-event cw-event--clickable ${ko ? "cw-event--ko" : ""}`}
                           key={j}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => openMatch(it.m)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              openMatch(it.m);
+                            }
+                          }}
                           title={`${teamName(it.m.home, lang)} ${t("vs")} ${teamName(it.m.away, lang)} · ${matchLabel(it.m)} · ${it.m.venue}, ${it.m.city}`}
                           style={{
                             top,
@@ -393,7 +404,19 @@ export default function Calendar({ tz }) {
 
                   <div className="cal-day-matches">
                     {day.matches.map((m, j) => (
-                      <div className="cal-match" key={j}>
+                      <div
+                        className="cal-match cal-match--clickable"
+                        key={j}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => openMatch(m)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            openMatch(m);
+                          }
+                        }}
+                      >
                         <span className="cal-match-time">
                           {formatTime(m.instant, tz, lang)}
                         </span>

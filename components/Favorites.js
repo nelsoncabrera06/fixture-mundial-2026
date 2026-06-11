@@ -6,6 +6,7 @@ import { flag, FLAGS } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName } from "../lib/i18n";
 import { useLang } from "./LanguageContext";
+import { useOpenMatch } from "./MatchNavContext";
 import MyTeamPlayoff from "./MyTeamPlayoff";
 import { useAuth } from "./AuthContext";
 import AuthModal from "./AuthModal";
@@ -21,6 +22,7 @@ function TeamLabel({ name, lang }) {
 export default function Favorites({ tz }) {
   const { user, ready, updatePrefs } = useAuth();
   const { lang, t } = useLang();
+  const openMatch = useOpenMatch();
   const [authOpen, setAuthOpen] = useState(false);
 
   // `activeTeam` (qué favorito se está viendo) es solo estado de UI; la LISTA
@@ -160,7 +162,19 @@ export default function Favorites({ tz }) {
                       const instant = kickoff(m);
                       const isHome = m.home === effectiveActive;
                       return (
-                        <div className="match match--highlight" key={i}>
+                        <div
+                          className="match match--highlight match--clickable"
+                          key={i}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => openMatch(m)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              openMatch(m);
+                            }
+                          }}
+                        >
                           <div className="when">
                             <div className="date">{formatDate(instant, tz, lang)}</div>
                             <div className="time">{formatTime(instant, tz, lang)}</div>

@@ -8,6 +8,7 @@ import { useLang } from "./LanguageContext";
 import { getResult } from "../lib/results";
 import { computeStandings } from "../lib/standings";
 import { useLiveResults } from "./LiveScoresProvider";
+import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
 
@@ -22,6 +23,7 @@ function TeamLabel({ name, lang }) {
 export default function Groups({ tz, group, onSelectGroup }) {
   const { lang, t } = useLang();
   useLiveResults(); // re-render cuando llegan marcadores nuevos
+  const openMatch = useOpenMatch();
   const active = GROUP_NAMES.includes(group) ? group : GROUP_NAMES[0];
 
   const standings = computeStandings(active);
@@ -101,18 +103,32 @@ export default function Groups({ tz, group, onSelectGroup }) {
           const r = getResult(m);
           const played = !!r && r.homeGoals != null && r.awayGoals != null;
           return (
-            <div className="gd-match" key={i}>
+            <div
+              className="gd-match gd-match--clickable"
+              key={i}
+              role="button"
+              tabIndex={0}
+              onClick={() => openMatch(m)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openMatch(m);
+                }
+              }}
+            >
               <div className="gd-match-when">
                 {formatDate(instant, tz, lang)} · {formatTime(instant, tz, lang)}
-                <AddToCalendar
-                  home={m.home}
-                  away={m.away}
-                  venue={m.venue}
-                  city={m.city}
-                  label={t("group.badge", { g: active })}
-                  start={instant}
-                  compact
-                />
+                <span className="atc-stop" onClick={(e) => e.stopPropagation()}>
+                  <AddToCalendar
+                    home={m.home}
+                    away={m.away}
+                    venue={m.venue}
+                    city={m.city}
+                    label={t("group.badge", { g: active })}
+                    start={instant}
+                    compact
+                  />
+                </span>
               </div>
               <div className="gd-match-row">
                 <span className="gd-home">

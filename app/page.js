@@ -7,6 +7,7 @@ import Knockout from "../components/Knockout";
 import Groups from "../components/Groups";
 import Calendar from "../components/Calendar";
 import NextMatch from "../components/NextMatch";
+import MatchView from "../components/MatchView";
 import About from "../components/About";
 import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
@@ -15,6 +16,7 @@ import Admin from "../components/Admin";
 import LanguagePicker from "../components/LanguagePicker";
 import { useAuth } from "../components/AuthContext";
 import { useLang } from "../components/LanguageContext";
+import { MatchNavContext } from "../components/MatchNavContext";
 import { DEFAULT_TZ } from "../lib/timezone";
 
 
@@ -29,10 +31,19 @@ export default function Home() {
   // Grupo activo en la pestaña "Grupos" (también lo setea el link desde
   // "Fase de grupos" al tocar un grupo).
   const [groupFocus, setGroupFocus] = useState("A");
+  // Partido elegido para la vista "Partido" (lo setea el selector de esa vista
+  // o un click en cualquier tarjeta de partido vía MatchNavContext).
+  const [selectedMatch, setSelectedMatch] = useState(null);
 
   const openGroup = (g) => {
     setGroupFocus(g);
     setTab("detalle");
+  };
+
+  // Abre el detalle de un partido desde cualquier tarjeta de la app.
+  const openMatch = (m) => {
+    setSelectedMatch(m);
+    setTab("partido");
   };
 
   // El equipo mostrado en "Mi cuenta" sale del registro del usuario.
@@ -68,6 +79,7 @@ export default function Home() {
     { id: "playoff", label: t("nav.playoff"), icon: "🏆" },
     { id: "detalle", label: t("nav.detalle"), icon: "📊" },
     { id: "calendario", label: t("nav.calendario"), icon: "📅" },
+    { id: "partido", label: t("nav.partido"), icon: "🆚" },
     { id: "siguiente", label: t("nav.siguiente"), icon: "⏭️" },
     { id: "miequipo", label: t("nav.miequipo"), icon: "⭐" },
     { id: "favoritos", label: t("nav.favoritos"), icon: "❤️" },
@@ -84,6 +96,7 @@ export default function Home() {
   }
 
   return (
+    <MatchNavContext.Provider value={openMatch}>
     <div className={`layout ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
       <aside className="sidebar">
         <div className="brand">
@@ -139,6 +152,14 @@ export default function Home() {
 
           {tab === "siguiente" && <NextMatch tz={tz} />}
           {tab === "grupos" && <GroupStage tz={tz} onOpenGroup={openGroup} />}
+          {tab === "partido" && (
+            <MatchView
+              tz={tz}
+              match={selectedMatch}
+              onSelect={setSelectedMatch}
+              onClear={() => setSelectedMatch(null)}
+            />
+          )}
           {tab === "playoff" && <Knockout tz={tz} />}
           {tab === "detalle" && (
             <Groups tz={tz} group={groupFocus} onSelectGroup={setGroupFocus} />
@@ -160,5 +181,6 @@ export default function Home() {
         </div>
       </main>
     </div>
+    </MatchNavContext.Provider>
   );
 }

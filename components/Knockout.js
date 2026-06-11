@@ -6,6 +6,7 @@ import { teamName, roundShort, roundName } from "../lib/i18n";
 import { getResult } from "../lib/results";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
+import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 
 // Índice rápido id -> partido (los datos viven en lib/knockout.js)
@@ -31,11 +32,23 @@ function buildTree(id) {
 }
 
 function MatchCard({ match, tz, lang }) {
+  const openMatch = useOpenMatch();
   const instant = kickoff(match);
   const r = getResult(match);
   const played = !!r && r.homeGoals != null && r.awayGoals != null;
   return (
-    <div className={`bk-match ${played ? "bk-match--played" : ""}`}>
+    <div
+      className={`bk-match bk-match--clickable ${played ? "bk-match--played" : ""}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => openMatch(match)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openMatch(match);
+        }
+      }}
+    >
       <div className="bk-team">
         <span className="bk-team-name">{teamName(match.home, lang)}</span>
         {played && <span className="bk-goals">{r.homeGoals}</span>}

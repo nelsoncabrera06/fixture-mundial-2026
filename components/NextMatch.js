@@ -9,6 +9,7 @@ import { teamName, roundName } from "../lib/i18n";
 import { getResult } from "../lib/results";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
+import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
 
@@ -47,6 +48,7 @@ function TeamRow({ name, lang }) {
 export default function NextMatch({ tz }) {
   const { lang, t } = useLang();
   useLiveResults(); // re-render cuando llegan marcadores nuevos
+  const openMatch = useOpenMatch();
   // Etiqueta traducida del partido: grupo o nombre de ronda.
   const matchLabel = (m) =>
     m.group ? t("group.badge", { g: m.group }) : roundName(m.label, lang);
@@ -116,7 +118,19 @@ export default function NextMatch({ tz }) {
             const r = getResult(m);
             const played = !!r && r.homeGoals != null && r.awayGoals != null;
             return (
-              <div className="nm-match" key={i}>
+              <div
+                className="nm-match nm-match--clickable"
+                key={i}
+                role="button"
+                tabIndex={0}
+                onClick={() => openMatch(m)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openMatch(m);
+                  }
+                }}
+              >
                 <div className="nm-teams">
                   <TeamRow name={m.home} lang={lang} />
                   {played ? (
@@ -140,7 +154,7 @@ export default function NextMatch({ tz }) {
                   📍 {m.venue}, {m.city}
                 </div>
                 <div className="nm-group">{matchLabel(m)}</div>
-                <div className="nm-cal">
+                <div className="nm-cal" onClick={(e) => e.stopPropagation()}>
                   <AddToCalendar
                     home={m.home}
                     away={m.away}

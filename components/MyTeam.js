@@ -6,6 +6,7 @@ import { flag, FLAGS } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName } from "../lib/i18n";
 import { useLang } from "./LanguageContext";
+import { useOpenMatch } from "./MatchNavContext";
 import AddToCalendar from "./AddToCalendar";
 import MyTeamPlayoff from "./MyTeamPlayoff";
 import { useAuth } from "./AuthContext";
@@ -24,6 +25,7 @@ function TeamLabel({ name, lang }) {
 export default function MyTeam({ tz }) {
   const { user, ready, updatePrefs } = useAuth();
   const { lang, t } = useLang();
+  const openMatch = useOpenMatch();
   const [authOpen, setAuthOpen] = useState(false);
 
   const [picking, setPicking] = useState(false);
@@ -111,19 +113,33 @@ export default function MyTeam({ tz }) {
               const instant = kickoff(m);
               const isHome = m.home === myTeam;
               return (
-                <div className="match match--highlight" key={i}>
+                <div
+                  className="match match--highlight match--clickable"
+                  key={i}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openMatch(m)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openMatch(m);
+                    }
+                  }}
+                >
                   <div className="when">
                     <div className="date">{formatDate(instant, tz, lang)}</div>
                     <div className="time">{formatTime(instant, tz, lang)}</div>
-                    <AddToCalendar
-                      home={m.home}
-                      away={m.away}
-                      venue={m.venue}
-                      city={m.city}
-                      label={t("group.badge", { g: m.group })}
-                      start={instant}
-                      compact
-                    />
+                    <span className="atc-stop" onClick={(e) => e.stopPropagation()}>
+                      <AddToCalendar
+                        home={m.home}
+                        away={m.away}
+                        venue={m.venue}
+                        city={m.city}
+                        label={t("group.badge", { g: m.group })}
+                        start={instant}
+                        compact
+                      />
+                    </span>
                   </div>
                   <div className="vs">
                     <div className="teams">

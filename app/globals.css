@@ -3106,3 +3106,10 @@ body {
 .standings tbody tr.st-current .st-team {
   font-weight: 800;
 }
+
+/* ── NextMatch - card siguiente partido ───────────────────── */
+.nm-card--upcoming {
+  margin-top: 12px;
+  opacity: 0.85;
+  border-style: dashed;
+}

@@ -90,6 +90,11 @@ export default function NextMatch({ tz }) {
   const isInaugural = nextT === FIRST_KICKOFF;
   const diff = nextT - now;
 
+  // Si el partido ya arrancó, buscar el siguiente slot
+  const afterMatches = started ? live.filter((m) => m.t > nextT) : [];
+  const nextUpT = afterMatches.length > 0 ? afterMatches[0].t : null;
+  const nextUpMatches = nextUpT ? afterMatches.filter((m) => m.t === nextUpT) : [];
+
   return (
     <div className="nextmatch">
       <div className={`nm-card ${started ? "nm-card--live" : ""}`}>
@@ -169,6 +174,50 @@ export default function NextMatch({ tz }) {
           })}
         </div>
       </div>
+
+      {/* Siguiente partido cuando hay uno en juego */}
+      {started && nextUpMatches.length > 0 && (
+        <div className="nm-card nm-card--upcoming">
+          <div className="nm-status">
+            <span className="nm-label">{t("nm.next")}</span>
+            <span className="nm-countdown">{countdown(nextUpT - now, t)}</span>
+          </div>
+          {nextUpMatches.length > 1 && (
+            <p className="nm-simul">{t("nm.simul", { n: nextUpMatches.length })}</p>
+          )}
+          <div className="nm-list">
+            {nextUpMatches.map((m, i) => {
+              const instant = new Date(m.t);
+              return (
+                <div
+                  className="nm-match nm-match--clickable"
+                  key={i}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openMatch(m)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openMatch(m);
+                    }
+                  }}
+                >
+                  <div className="nm-teams">
+                    <TeamRow name={m.home} lang={lang} />
+                    <span className="nm-vs">{t("vs")}</span>
+                    <TeamRow name={m.away} lang={lang} />
+                  </div>
+                  <div className="nm-when">
+                    📅 {formatDate(instant, tz, lang)} · {formatTime(instant, tz, lang)}
+                  </div>
+                  <div className="nm-venue">📍 {m.venue}, {m.city}</div>
+                  <div className="nm-group">{matchLabel(m)}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

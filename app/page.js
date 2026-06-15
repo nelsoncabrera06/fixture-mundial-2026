@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import TimezonePicker from "../components/TimezonePicker";
+import TimezoneBubble from "../components/TimezoneBubble";
 import GroupStage from "../components/GroupStage";
 import Knockout from "../components/Knockout";
 import Groups from "../components/Groups";
@@ -149,6 +149,8 @@ export default function Home() {
               )}
             </header>
           </div>
+
+          <TimezoneBubble tz={tz} onGoToAccount={() => setTab("cuenta")} />
 
           {tab === "siguiente" && <NextMatch tz={tz} />}
           {tab === "grupos" && <GroupStage tz={tz} onOpenGroup={openGroup} />}

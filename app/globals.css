@@ -3106,3 +3106,61 @@ body {
 .standings tbody tr.st-current .st-team {
   font-weight: 800;
 }
+
+/* Aviso de zona horaria (TimezoneBubble): banner amarillo suave, no intrusivo,
+   que aparece solo cuando la zona guardada difiere de la del dispositivo. */
+.tz-bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 210, 63, 0.4);
+  background: rgba(255, 210, 63, 0.1);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+.tz-bubble-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.tz-bubble-text {
+  flex: 1;
+  min-width: 0;
+}
+.tz-bubble-cta {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #0b1020;
+  background: var(--accent-2);
+  cursor: pointer;
+}
+.tz-bubble-cta:hover {
+  filter: brightness(1.05);
+}
+.tz-bubble-close {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+.tz-bubble-close:hover {
+  color: var(--text);
+}
+@media (max-width: 600px) {
+  .tz-bubble {
+    flex-wrap: wrap;
+  }
+  .tz-bubble-text {
+    flex-basis: 100%;
+  }
+}

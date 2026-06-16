@@ -2823,6 +2823,77 @@ body {
   justify-content: center;
 }
 
+/* ---- Proyección de cruces de R32 desde la tabla en vivo ---- */
+/* Amarillo: posición aún tentativa (faltan partidos del grupo). */
+.bk-match--tentative {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px #f59e0b, var(--shadow);
+}
+/* Verde: grupos terminados, 1.º/2.º (ambos equipos) confirmados. */
+.bk-match--confirmed {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 1px #22c55e, var(--shadow);
+}
+/* No pisar el ring de proyección con el hover azul del acento. */
+.bk-match--tentative.bk-match--clickable:hover {
+  box-shadow: 0 0 0 2px #f59e0b, var(--shadow);
+}
+.bk-match--confirmed.bk-match--clickable:hover {
+  box-shadow: 0 0 0 2px #22c55e, var(--shadow);
+}
+.bk-team-name--proj {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.bk-proj-flag {
+  flex: none;
+}
+
+/* Leyenda de colores arriba del bracket */
+.bk-proj-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.bk-proj-legend-lead {
+  font-weight: 600;
+}
+.bk-proj-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  white-space: nowrap;
+}
+.bk-proj-chip::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: none;
+}
+.bk-proj-chip--tentative {
+  border-color: #f59e0b;
+}
+.bk-proj-chip--tentative::before {
+  background: #f59e0b;
+}
+.bk-proj-chip--confirmed {
+  border-color: #22c55e;
+}
+.bk-proj-chip--confirmed::before {
+  background: #22c55e;
+}
+
 /* NextMatch: marcador grande en el separador + badge debajo */
 .nm-vs.nm-score {
   color: var(--text);

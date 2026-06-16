@@ -4,6 +4,8 @@ import { ROUNDS, kickoff } from "../lib/knockout";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundShort, roundName } from "../lib/i18n";
 import { getResult } from "../lib/results";
+import { resolveR32Slot, hasR32Projections } from "../lib/playoffPath";
+import { flag } from "../lib/teams";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
@@ -31,14 +33,44 @@ function buildTree(id) {
   return { match, children };
 }
 
+// Dibuja una ranura del cruce: si se puede proyectar desde la tabla del grupo
+// muestra el equipo con bandera; si no, el texto del placeholder tal cual.
+function SlotName({ label, lang, proj }) {
+  if (proj) {
+    return (
+      <span className="bk-team-name bk-team-name--proj">
+        <span className="bk-proj-flag">{flag(proj.team)}</span>
+        {teamName(proj.team, lang)}
+      </span>
+    );
+  }
+  return <span className="bk-team-name">{teamName(label, lang)}</span>;
+}
+
 function MatchCard({ match, tz, lang }) {
   const openMatch = useOpenMatch();
   const instant = kickoff(match);
   const r = getResult(match);
   const played = !!r && r.homeGoals != null && r.awayGoals != null;
+
+  // Proyección de cruces de R32 desde la tabla en vivo (solo si no se jugó aún
+  // y los slots siguen como placeholder "1.º/2.º Grupo X").
+  const homeProj = played ? null : resolveR32Slot(match.home);
+  const awayProj = played ? null : resolveR32Slot(match.away);
+  // El partido se marca verde solo si AMBOS equipos están confirmados (grupos
+  // terminados). Si alguno es tentativo —o uno todavía es un tercero por
+  // definir junto a uno confirmado—, va amarillo.
+  let projClass = "";
+  if (homeProj || awayProj) {
+    const allConfirmed =
+      homeProj?.status === "confirmed" &&
+      awayProj?.status === "confirmed";
+    projClass = allConfirmed ? "bk-match--confirmed" : "bk-match--tentative";
+  }
+
   return (
     <div
-      className={`bk-match bk-match--clickable ${played ? "bk-match--played" : ""}`}
+      className={`bk-match bk-match--clickable ${played ? "bk-match--played" : ""} ${projClass}`}
       role="button"
       tabIndex={0}
       onClick={() => openMatch(match)}
@@ -50,11 +82,11 @@ function MatchCard({ match, tz, lang }) {
       }}
     >
       <div className="bk-team">
-        <span className="bk-team-name">{teamName(match.home, lang)}</span>
+        <SlotName label={match.home} lang={lang} proj={homeProj} />
         {played && <span className="bk-goals">{r.homeGoals}</span>}
       </div>
       <div className="bk-team">
-        <span className="bk-team-name">{teamName(match.away, lang)}</span>
+        <SlotName label={match.away} lang={lang} proj={awayProj} />
         {played && <span className="bk-goals">{r.awayGoals}</span>}
       </div>
       {played && r.status ? (
@@ -121,12 +153,24 @@ export default function Knockout({ tz }) {
   const fin = roundShort("Final", lang);
   const leftHeaders = [r32, r16, qf, sf];
   const rightHeaders = [sf, qf, r16, r32];
+  const showProjLegend = hasR32Projections();
 
   return (
     <>
       <p className="tz-text" style={{ marginTop: 0, marginBottom: 16 }}>
         {t("ko.intro")}
       </p>
+      {showProjLegend && (
+        <div className="bk-proj-legend" role="note">
+          <span className="bk-proj-legend-lead">{t("ko.projLead")}</span>
+          <span className="bk-proj-chip bk-proj-chip--tentative">
+            {t("ko.projTentative")}
+          </span>
+          <span className="bk-proj-chip bk-proj-chip--confirmed">
+            {t("ko.projConfirmed")}
+          </span>
+        </div>
+      )}
       <div className="bracket2">
         <div className="bk-headers">
           {leftHeaders.map((h, i) => (

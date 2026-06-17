@@ -13,6 +13,8 @@ import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
 import MyAccount from "../components/MyAccount";
 import Admin from "../components/Admin";
+import Simulations from "../components/Simulations";
+import SimulationBubble from "../components/SimulationBubble";
 import LanguagePicker from "../components/LanguagePicker";
 import { useAuth } from "../components/AuthContext";
 import { useLang } from "../components/LanguageContext";
@@ -83,6 +85,7 @@ export default function Home() {
     { id: "siguiente", label: t("nav.siguiente"), icon: "⏭️" },
     { id: "miequipo", label: t("nav.miequipo"), icon: "⭐" },
     { id: "favoritos", label: t("nav.favoritos"), icon: "❤️" },
+    { id: "simulaciones", label: t("nav.simulaciones"), icon: "🧪" },
     {
       id: "cuenta",
       label: user ? t("nav.cuenta") : t("nav.login"),
@@ -151,6 +154,7 @@ export default function Home() {
           </div>
 
           <TimezoneBubble tz={tz} onGoToAccount={() => setTab("cuenta")} />
+          <SimulationBubble onManage={() => setTab("simulaciones")} />
 
           {tab === "siguiente" && <NextMatch tz={tz} />}
           {tab === "grupos" && <GroupStage tz={tz} onOpenGroup={openGroup} />}
@@ -169,6 +173,12 @@ export default function Home() {
           {tab === "calendario" && <Calendar tz={tz} />}
           {tab === "miequipo" && <MyTeam tz={tz} />}
           {tab === "favoritos" && <Favorites tz={tz} />}
+          {tab === "simulaciones" && (
+            <Simulations
+              onGoToAccount={() => setTab("cuenta")}
+              onGoToMatch={() => setTab("partido")}
+            />
+          )}
           {tab === "sobre" && <About />}
           {tab === "cuenta" && <MyAccount myTeam={myTeam} tz={tz} onTzChange={changeTz} />}
           {tab === "admin" && <Admin />}

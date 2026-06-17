@@ -19,10 +19,11 @@ import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundName } from "../lib/i18n";
-import { getResult } from "../lib/results";
+import { getResult, matchId, isSimEditable, isSimulated } from "../lib/results";
 import { computeStandings } from "../lib/standings";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
+import { useSimulation } from "./SimulationContext";
 import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
 
@@ -40,7 +41,10 @@ function roundOf(m) {
 
 export default function MatchView({ tz, match, onSelect, onClear }) {
   if (match) {
-    return <MatchDetail match={match} tz={tz} onBack={onClear} />;
+    // key por partido: reinicia el estado del editor al cambiar de partido.
+    return (
+      <MatchDetail key={matchId(match)} match={match} tz={tz} onBack={onClear} />
+    );
   }
   return <MatchPicker tz={tz} onPick={onSelect} />;
 }
@@ -147,9 +151,16 @@ function MatchPicker({ tz, onPick }) {
 function MatchDetail({ match, tz, onBack }) {
   const { lang, t } = useLang();
   useLiveResults(); // re-render cuando llegan marcadores nuevos
+  const sim = useSimulation();
+  void sim.version; // re-render al guardar/quitar una simulación
   const instant = kickoff(match);
   const r = getResult(match);
   const played = !!r && r.homeGoals != null && r.awayGoals != null;
+  const editable = isSimEditable(match); // modo sim + partido no jugado
+  const simulated = isSimulated(match); // tiene un resultado simulado en vigencia
+  // Estado del editor; se reinicia al cambiar de partido (key en MatchView).
+  const [h, setH] = useState(simulated && r ? r.homeGoals : 0);
+  const [a, setA] = useState(simulated && r ? r.awayGoals : 0);
   const group = isGroupMatch(match) ? match.group : null;
   const label = group
     ? t("group.badge", { g: group })
@@ -170,7 +181,9 @@ function MatchDetail({ match, tz, onBack }) {
       <div className={`md-card ${played && r.status === "LIVE" ? "md-card--live" : ""}`}>
         <div className="md-top">
           <span className="md-stage">{label}</span>
-          {played && r.status ? (
+          {simulated ? (
+            <span className="md-sim-chip">🧪 {t("sim.badge")}</span>
+          ) : played && r.status ? (
             <LiveBadge status={r.status} elapsed={r.elapsed} />
           ) : (
             <span className="md-scheduled">{t("match.scheduled")}</span>
@@ -217,6 +230,44 @@ function MatchDetail({ match, tz, onBack }) {
           />
         </div>
       </div>
+
+      {editable && (
+        <div className="md-sim">
+          <div className="md-sim-title">🧪 {t("sim.edit.title")}</div>
+          <p className="md-sim-hint">{t("sim.edit.hint")}</p>
+          <div className="md-sim-board">
+            <div className="md-sim-side">
+              <span className="md-flag">{flag(match.home)}</span>
+              <span className="md-sim-name">{teamName(match.home, lang)}</span>
+              <Stepper value={h} onChange={setH} />
+            </div>
+            <span className="md-sim-sep">-</span>
+            <div className="md-sim-side md-sim-side--away">
+              <Stepper value={a} onChange={setA} />
+              <span className="md-sim-name">{teamName(match.away, lang)}</span>
+              <span className="md-flag">{flag(match.away)}</span>
+            </div>
+          </div>
+          <div className="md-sim-actions">
+            <button
+              type="button"
+              className="md-sim-save"
+              onClick={() => sim.saveMatch(match, h, a)}
+            >
+              {t("sim.edit.save")}
+            </button>
+            {simulated && (
+              <button
+                type="button"
+                className="md-sim-clear"
+                onClick={() => sim.clearMatch(match)}
+              >
+                {t("sim.edit.clear")}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {group && standings && (
         <div className="md-standings">
@@ -274,5 +325,30 @@ function MatchDetail({ match, tz, onBack }) {
         </div>
       )}
     </div>
+  );
+}
+
+// Control +/- de goles para el editor de simulación.
+function Stepper({ value, onChange }) {
+  return (
+    <span className="md-stepper">
+      <button
+        type="button"
+        className="md-stepper-btn"
+        onClick={() => onChange(Math.max(0, value - 1))}
+        aria-label="−"
+      >
+        −
+      </button>
+      <span className="md-stepper-val">{value}</span>
+      <button
+        type="button"
+        className="md-stepper-btn"
+        onClick={() => onChange(value + 1)}
+        aria-label="+"
+      >
+        +
+      </button>
+    </span>
   );
 }

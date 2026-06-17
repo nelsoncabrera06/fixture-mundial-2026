@@ -3242,3 +3242,282 @@ body {
     flex-basis: 100%;
   }
 }
+
+/* ── Modo simulación ─────────────────────────────────────────────────────── */
+/* Burbuja indicadora (en todas las pestañas mientras hay escenario activo). */
+.sim-bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 214, 143, 0.45);
+  background: rgba(0, 214, 143, 0.12);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+.sim-bubble-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+.sim-bubble-text {
+  flex: 1;
+  min-width: 0;
+}
+.sim-bubble-cta,
+.sim-bubble-exit {
+  flex-shrink: 0;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.sim-bubble-cta {
+  border: none;
+  color: #0b1020;
+  background: var(--accent);
+}
+.sim-bubble-cta:hover {
+  filter: brightness(1.05);
+}
+.sim-bubble-exit {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+}
+.sim-bubble-exit:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+@media (max-width: 600px) {
+  .sim-bubble {
+    flex-wrap: wrap;
+  }
+  .sim-bubble-text {
+    flex-basis: 100%;
+  }
+}
+
+/* Pestaña Simulaciones: tarjetas de escenarios. */
+.sim-login {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+}
+.sim-login-cta {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 700;
+  color: #0b1020;
+  background: var(--accent-2);
+  cursor: pointer;
+}
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.sim-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+}
+.sim-card--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.sim-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sim-card-num {
+  font-size: 18px;
+  font-weight: 800;
+}
+.sim-card-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0b1020;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+.sim-card-name {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-size: 14px;
+}
+.sim-card-name::placeholder {
+  color: var(--muted);
+}
+.sim-card-count {
+  font-size: 13px;
+  color: var(--muted);
+}
+.sim-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+.sim-btn {
+  flex: 1;
+  min-width: 90px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg-soft);
+  cursor: pointer;
+}
+.sim-btn:hover {
+  border-color: var(--text);
+}
+.sim-btn--primary {
+  border: none;
+  color: #0b1020;
+  background: var(--accent);
+}
+.sim-btn--primary:hover {
+  filter: brightness(1.05);
+}
+.sim-btn--ghost {
+  background: transparent;
+  color: var(--muted);
+}
+.sim-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Chip "Simulado" en la ficha del partido. */
+.md-sim-chip {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0b1020;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+/* Editor de resultado simulado en la vista Partido. */
+.md-sim {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid rgba(0, 214, 143, 0.45);
+  border-radius: 14px;
+  background: rgba(0, 214, 143, 0.08);
+}
+.md-sim-title {
+  font-weight: 800;
+  font-size: 15px;
+}
+.md-sim-hint {
+  margin: 6px 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.md-sim-board {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.md-sim-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.md-sim-side--away {
+  flex-direction: row;
+}
+.md-sim-name {
+  font-weight: 700;
+}
+.md-sim-sep {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.md-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  padding: 2px;
+}
+.md-stepper-btn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+.md-stepper-btn:hover {
+  background: var(--card-hover);
+}
+.md-stepper-val {
+  min-width: 26px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+}
+.md-sim-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.md-sim-save {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 800;
+  color: #0b1020;
+  background: var(--accent);
+  cursor: pointer;
+}
+.md-sim-save:hover {
+  filter: brightness(1.05);
+}
+.md-sim-clear {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 700;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+}
+.md-sim-clear:hover {
+  color: var(--text);
+  border-color: var(--text);
+}

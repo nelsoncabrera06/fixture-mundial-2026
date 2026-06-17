@@ -2,6 +2,7 @@ import "./globals.css";
 import { AuthProvider } from "../components/AuthContext";
 import { LanguageProvider } from "../components/LanguageContext";
 import { LiveScoresProvider } from "../components/LiveScoresProvider";
+import { SimulationProvider } from "../components/SimulationContext";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata = {
@@ -16,7 +17,9 @@ export default function RootLayout({ children }) {
       <body>
         <LanguageProvider>
           <AuthProvider>
-            <LiveScoresProvider>{children}</LiveScoresProvider>
+            <LiveScoresProvider>
+              <SimulationProvider>{children}</SimulationProvider>
+            </LiveScoresProvider>
           </AuthProvider>
         </LanguageProvider>
         <Analytics />

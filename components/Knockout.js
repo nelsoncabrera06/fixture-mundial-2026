@@ -4,7 +4,7 @@ import { ROUNDS, kickoff } from "../lib/knockout";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundShort, roundName } from "../lib/i18n";
 import { getResult } from "../lib/results";
-import { resolveR32Slot, hasR32Projections } from "../lib/playoffPath";
+import { resolveSlot, hasR32Projections } from "../lib/playoffPath";
 import { flag } from "../lib/teams";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
@@ -53,15 +53,16 @@ function MatchCard({ match, tz, lang }) {
   const r = getResult(match);
   const played = !!r && r.homeGoals != null && r.awayGoals != null;
 
-  // Proyección de cruces de R32 desde la tabla en vivo (solo si no se jugó aún
-  // y los slots siguen como placeholder "1.º/2.º Grupo X").
-  const homeProj = played ? null : resolveR32Slot(match.home);
-  const awayProj = played ? null : resolveR32Slot(match.away);
-  // El partido se marca verde solo si AMBOS equipos están confirmados (grupos
-  // terminados). Si alguno es tentativo —o uno todavía es un tercero por
-  // definir junto a uno confirmado—, va amarillo.
+  // Proyección de slots desde la tabla y los resultados: resolvemos el equipo
+  // tanto de un "1.º/2.º Grupo X" como de un "Ganador N" (recursivo) aunque ya
+  // haya un resultado (p. ej. simulado), para no volver a mostrar el placeholder.
+  const homeProj = resolveSlot(match.home);
+  const awayProj = resolveSlot(match.away);
+  // El borde tentativo/confirmado solo tiene sentido antes de que haya marcador.
+  // Verde si AMBOS equipos están confirmados (grupos terminados); si alguno es
+  // tentativo —o un tercero por definir junto a uno confirmado—, amarillo.
   let projClass = "";
-  if (homeProj || awayProj) {
+  if (!played && (homeProj || awayProj)) {
     const allConfirmed =
       homeProj?.status === "confirmed" &&
       awayProj?.status === "confirmed";

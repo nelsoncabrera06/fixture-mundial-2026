@@ -3124,6 +3124,39 @@ body {
   font-weight: 800;
   font-size: 1rem;
 }
+/* Placeholder original ("1.º Grupo J") + marca tentativo/confirmado, debajo
+   del equipo proyectado en la ficha del partido. */
+.md-proj-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.md-proj-tag::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  flex: none;
+}
+.md-proj-tag--tentative {
+  border-color: #f59e0b;
+}
+.md-proj-tag--tentative::before {
+  background: #f59e0b;
+}
+.md-proj-tag--confirmed {
+  border-color: #22c55e;
+}
+.md-proj-tag--confirmed::before {
+  background: #22c55e;
+}
 .md-mid {
   display: flex;
   align-items: center;

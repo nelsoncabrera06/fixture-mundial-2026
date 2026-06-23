@@ -21,6 +21,7 @@ import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundName } from "../lib/i18n";
 import { getResult, matchId, isSimEditable, isSimulated } from "../lib/results";
 import { computeStandings } from "../lib/standings";
+import { resolveSlot } from "../lib/playoffPath";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
 import { useSimulation } from "./SimulationContext";
@@ -166,6 +167,16 @@ function MatchDetail({ match, tz, onBack }) {
     ? t("group.badge", { g: group })
     : roundName(roundOf(match), lang);
 
+  // Proyección de cruces de R32 desde la tabla en vivo: si el slot todavía es
+  // un placeholder ("1.º Grupo J") y el partido no se jugó, mostramos el equipo
+  // que hoy ocuparía esa posición (tentativo/confirmado), igual que el bracket.
+  const homeProj = !group ? resolveSlot(match.home) : null;
+  const awayProj = !group ? resolveSlot(match.away) : null;
+  // Nombre/bandera a mostrar para cada lado: el equipo proyectado si lo hay,
+  // si no el slot tal cual ("1.º Grupo J"). Lo usa también el editor de sim.
+  const homeTeam = homeProj ? homeProj.team : match.home;
+  const awayTeam = awayProj ? awayProj.team : match.away;
+
   // Tabla del grupo (sólo fase de grupos). Se calcula sola a partir de los
   // resultados cargados; los 2 primeros (cuando ya se jugó algo) quedan
   // resaltados como clasificados.
@@ -191,10 +202,7 @@ function MatchDetail({ match, tz, onBack }) {
         </div>
 
         <div className="md-score">
-          <div className="md-side">
-            <span className="md-flag">{flag(match.home)}</span>
-            <span className="md-name">{teamName(match.home, lang)}</span>
-          </div>
+          <Side label={match.home} proj={homeProj} lang={lang} t={t} />
           <div className="md-mid">
             {played ? (
               <span className="md-num">
@@ -204,10 +212,7 @@ function MatchDetail({ match, tz, onBack }) {
               <span className="md-vs">{t("vs")}</span>
             )}
           </div>
-          <div className="md-side">
-            <span className="md-flag">{flag(match.away)}</span>
-            <span className="md-name">{teamName(match.away, lang)}</span>
-          </div>
+          <Side label={match.away} proj={awayProj} lang={lang} t={t} />
         </div>
 
         <div className="md-info">
@@ -237,15 +242,15 @@ function MatchDetail({ match, tz, onBack }) {
           <p className="md-sim-hint">{t("sim.edit.hint")}</p>
           <div className="md-sim-board">
             <div className="md-sim-side">
-              <span className="md-flag">{flag(match.home)}</span>
-              <span className="md-sim-name">{teamName(match.home, lang)}</span>
+              <span className="md-flag">{flag(homeTeam)}</span>
+              <span className="md-sim-name">{teamName(homeTeam, lang)}</span>
               <Stepper value={h} onChange={setH} />
             </div>
             <span className="md-sim-sep">-</span>
             <div className="md-sim-side md-sim-side--away">
               <Stepper value={a} onChange={setA} />
-              <span className="md-sim-name">{teamName(match.away, lang)}</span>
-              <span className="md-flag">{flag(match.away)}</span>
+              <span className="md-sim-name">{teamName(awayTeam, lang)}</span>
+              <span className="md-flag">{flag(awayTeam)}</span>
             </div>
           </div>
           <div className="md-sim-actions">
@@ -324,6 +329,30 @@ function MatchDetail({ match, tz, onBack }) {
           {!anyPlayed && <p className="gd-note">{t("groups.noMatches")}</p>}
         </div>
       )}
+    </div>
+  );
+}
+
+// Un lado de la ficha: bandera + nombre. Si el slot se pudo proyectar desde la
+// tabla del grupo, muestra el equipo proyectado y, debajo, el placeholder
+// original ("1.º Grupo J") con una marca tentativo/confirmado.
+function Side({ label, proj, lang, t }) {
+  if (proj) {
+    return (
+      <div className="md-side">
+        <span className="md-flag">{flag(proj.team)}</span>
+        <span className="md-name">{teamName(proj.team, lang)}</span>
+        <span className={`md-proj-tag md-proj-tag--${proj.status}`}>
+          {teamName(label, lang)} ·{" "}
+          {t(proj.status === "confirmed" ? "match.proj.confirmed" : "match.proj.tentative")}
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="md-side">
+      <span className="md-flag">{flag(label)}</span>
+      <span className="md-name">{teamName(label, lang)}</span>
     </div>
   );
 }

@@ -2769,6 +2769,17 @@ body {
   color: var(--muted);
   background: var(--border);
 }
+/* Suspendido: ámbar, como la proyección tentativa (puede cambiar). */
+.live-badge--susp {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.14);
+}
+/* Aplazado / cancelado: gris apagado, sin marcador. */
+.live-badge--postp,
+.live-badge--canc {
+  color: var(--muted);
+  background: var(--border);
+}
 .live-dot {
   width: 8px;
   height: 8px;

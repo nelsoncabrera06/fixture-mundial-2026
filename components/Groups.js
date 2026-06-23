@@ -5,7 +5,7 @@ import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName } from "../lib/i18n";
 import { useLang } from "./LanguageContext";
-import { getResult } from "../lib/results";
+import { getResult, isNoScoreStatus } from "../lib/results";
 import { computeStandings } from "../lib/standings";
 import { useLiveResults } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
@@ -102,6 +102,7 @@ export default function Groups({ tz, group, onSelectGroup }) {
           const instant = kickoff(m);
           const r = getResult(m);
           const played = !!r && r.homeGoals != null && r.awayGoals != null;
+          const noScore = isNoScoreStatus(r); // aplazado/cancelado: badge sin marcador
           return (
             <div
               className="gd-match gd-match--clickable"
@@ -145,7 +146,7 @@ export default function Groups({ tz, group, onSelectGroup }) {
                   <TeamLabel name={m.away} lang={lang} />
                 </span>
               </div>
-              {played && r.status && (
+              {((played && r.status) || noScore) && (
                 <div className="gd-match-badge">
                   <LiveBadge status={r.status} elapsed={r.elapsed} />
                 </div>

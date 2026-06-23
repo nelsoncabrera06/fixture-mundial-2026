@@ -19,7 +19,7 @@ import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundName } from "../lib/i18n";
-import { getResult, matchId, isSimEditable, isSimulated } from "../lib/results";
+import { getResult, matchId, isSimEditable, isSimulated, isNoScoreStatus } from "../lib/results";
 import { computeStandings } from "../lib/standings";
 import { resolveSlot } from "../lib/playoffPath";
 import { useLang } from "./LanguageContext";
@@ -157,6 +157,7 @@ function MatchDetail({ match, tz, onBack }) {
   const instant = kickoff(match);
   const r = getResult(match);
   const played = !!r && r.homeGoals != null && r.awayGoals != null;
+  const noScore = isNoScoreStatus(r); // aplazado/cancelado: badge sin marcador
   const editable = isSimEditable(match); // modo sim + partido no jugado
   const simulated = isSimulated(match); // tiene un resultado simulado en vigencia
   // Estado del editor; se reinicia al cambiar de partido (key en MatchView).
@@ -194,7 +195,7 @@ function MatchDetail({ match, tz, onBack }) {
           <span className="md-stage">{label}</span>
           {simulated ? (
             <span className="md-sim-chip">🧪 {t("sim.badge")}</span>
-          ) : played && r.status ? (
+          ) : (played && r.status) || noScore ? (
             <LiveBadge status={r.status} elapsed={r.elapsed} />
           ) : (
             <span className="md-scheduled">{t("match.scheduled")}</span>

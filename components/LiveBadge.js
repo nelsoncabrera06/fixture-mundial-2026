@@ -1,8 +1,9 @@
 "use client";
 
-// Cartelito de estado de un partido: 🔴 EN VIVO 67' / ENTRETIEMPO / Finalizado.
-// Recibe el `status` ya normalizado (LIVE | HT | FT) y el minuto opcional.
-// Devuelve null si no hay estado (partido sin empezar).
+// Cartelito de estado de un partido: 🔴 EN VIVO 67' / ENTRETIEMPO / Finalizado /
+// SUSPENDIDO / APLAZADO / CANCELADO.
+// Recibe el `status` ya normalizado (LIVE | HT | FT | SUSP | POSTP | CANC) y el
+// minuto opcional. Devuelve null si no hay estado (partido sin empezar).
 import { useLang } from "./LanguageContext";
 
 export default function LiveBadge({ status, elapsed }) {
@@ -23,6 +24,20 @@ export default function LiveBadge({ status, elapsed }) {
   }
   if (status === "FT") {
     return <span className="live-badge live-badge--ft">{t("live.ft")}</span>;
+  }
+  if (status === "SUSP") {
+    return (
+      <span className="live-badge live-badge--susp">
+        {t("live.susp")}
+        {elapsed != null ? ` ${elapsed}'` : ""}
+      </span>
+    );
+  }
+  if (status === "POSTP") {
+    return <span className="live-badge live-badge--postp">{t("live.postp")}</span>;
+  }
+  if (status === "CANC") {
+    return <span className="live-badge live-badge--canc">{t("live.canc")}</span>;
   }
   return null;
 }

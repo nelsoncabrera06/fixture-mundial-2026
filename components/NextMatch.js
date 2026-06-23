@@ -6,7 +6,7 @@ import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundName } from "../lib/i18n";
-import { getResult } from "../lib/results";
+import { getResult, isNoScoreStatus } from "../lib/results";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
@@ -122,6 +122,7 @@ export default function NextMatch({ tz }) {
             const instant = new Date(m.t);
             const r = getResult(m);
             const played = !!r && r.homeGoals != null && r.awayGoals != null;
+            const noScore = isNoScoreStatus(r); // aplazado/cancelado: badge sin marcador
             return (
               <div
                 className="nm-match nm-match--clickable"
@@ -147,7 +148,7 @@ export default function NextMatch({ tz }) {
                   )}
                   <TeamRow name={m.away} lang={lang} />
                 </div>
-                {played && r.status && (
+                {((played && r.status) || noScore) && (
                   <div className="nm-badge">
                     <LiveBadge status={r.status} elapsed={r.elapsed} />
                   </div>

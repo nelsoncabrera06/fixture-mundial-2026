@@ -4,7 +4,7 @@ import { GROUP_NAMES, GROUPS, GROUP_MATCHES, kickoff } from "../lib/matches";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName } from "../lib/i18n";
-import { getResult } from "../lib/results";
+import { getResult, isNoScoreStatus } from "../lib/results";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
@@ -52,6 +52,7 @@ export default function GroupStage({ tz, onOpenGroup }) {
               const instant = kickoff(m);
               const r = getResult(m);
               const played = !!r && r.homeGoals != null && r.awayGoals != null;
+              const noScore = isNoScoreStatus(r); // aplazado/cancelado: badge sin marcador
               return (
                 <div
                   className="match match--clickable"
@@ -82,7 +83,7 @@ export default function GroupStage({ tz, onOpenGroup }) {
                     </span>
                   </div>
                   <div className="vs">
-                    {played && (
+                    {(played || noScore) && (
                       <div className="match-badge">
                         <LiveBadge status={r.status} elapsed={r.elapsed} />
                       </div>

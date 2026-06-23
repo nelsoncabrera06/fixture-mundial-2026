@@ -20,8 +20,23 @@ const API_URL = "https://api.football-data.org/v4/competitions/WC/matches";
 
 // Ventana de polling alrededor de cada partido (en minutos). 140 min después
 // cubre 90' + entretiempo + descuento (y casi todo alargue/penales en playoffs).
+// Si un partido se SUSPENDE y se reanuda más tarde, se sale de esta ventana; por
+// eso, además, seguimos preguntando mientras haya un partido "activo" en la base
+// (ver hayPartidoActivo): la ventana ARRANCA el polling y el estado activo lo
+// EXTIENDE solo, por cualquier duración del corte, hasta que finalice.
 const BEFORE_MIN = 10;
 const AFTER_MIN = 140;
+
+// Estados CRUDOS de football-data que mantienen vivo el polling fuera de ventana.
+const ACTIVE_STATUSES = ["IN_PLAY", "PAUSED", "SUSPENDED"];
+// Estados "raros" que disparan un email de alerta al transicionar a ellos.
+const ALERT_STATUSES = ["SUSPENDED", "POSTPONED", "CANCELLED"];
+// Tope: un partido "activo" sin actualizarse hace más de esto se considera
+// muerto y deja de mantener el polling (evita preguntar para siempre).
+const ACTIVE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+// Key pública de Web3Forms (la misma del formulario de contacto del sitio).
+const WEB3FORMS_KEY =
+  Deno.env.get("WEB3FORMS_KEY") ?? "6ff791e9-f323-4386-be68-2d6cf07ea13b";
 
 // Horarios de inicio (hora ARG, UTC-3) de TODOS los partidos del torneo.
 // Generado desde lib/matches.js + lib/knockout.js. Si cambian fechas/horas
@@ -70,13 +85,62 @@ function hayPartidoEnVentana(now: number): boolean {
   return false;
 }
 
+// ¿Hay algún partido "activo" (en juego, entretiempo o SUSPENDIDO) y reciente en
+// la base? Mantiene vivo el polling fuera de ventana —p. ej. una suspensión larga
+// que se reanuda pasados los 140 min—. El tope de antigüedad evita preguntar para
+// siempre si un partido queda colgado en SUSPENDED y nunca se resuelve.
+// deno-lint-ignore no-explicit-any
+function hayPartidoActivo(prev: any[], now: number): boolean {
+  return prev.some(
+    (row) =>
+      ACTIVE_STATUSES.includes(row.status_short) &&
+      now - new Date(row.updated_at ?? 0).getTime() < ACTIVE_MAX_AGE_MS,
+  );
+}
+
+// Manda un email de alerta (vía Web3Forms) cuando un partido entra en un estado
+// raro, para revisarlo a mano. No corta el flujo si falla.
+async function enviarAlerta(subject: string, message: string): Promise<void> {
+  try {
+    await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject,
+        from_name: "Fixture 2026 · sync-scores",
+        message,
+      }),
+    });
+  } catch (_e) {
+    // Silencioso: una alerta perdida no debe romper el sync.
+  }
+}
+
 Deno.serve(async () => {
   const token = Deno.env.get("FOOTBALL_DATA_TOKEN");
   if (!token) return json({ ok: false, error: "Falta el secret FOOTBALL_DATA_TOKEN" }, 500);
 
-  // Fuera de horario de partido no gastamos llamadas.
-  if (!hayPartidoEnVentana(Date.now())) {
-    return json({ ok: true, skipped: "sin partidos en ventana", calls: 0 });
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Estado previo de cada partido (para el gate "activo" y para detectar
+  // transiciones a estados raros). La tabla es chica (~104 filas), traemos todo.
+  const { data: prevRows } = await supabase
+    .from("live_scores")
+    .select("fixture_id, status_short, updated_at, home_team, away_team");
+  // deno-lint-ignore no-explicit-any
+  const prev = (prevRows ?? []) as any[];
+  const prevStatus = new Map<number, string>(
+    prev.map((r) => [r.fixture_id, r.status_short] as [number, string]),
+  );
+
+  const now = Date.now();
+  // La ventana de tiempo ARRANCA el polling; un partido activo lo EXTIENDE.
+  if (!hayPartidoEnVentana(now) && !hayPartidoActivo(prev, now)) {
+    return json({ ok: true, skipped: "sin partidos en ventana ni activos", calls: 0 });
   }
 
   // Una sola llamada trae TODOS los partidos del Mundial (con el marcador
@@ -106,11 +170,6 @@ Deno.serve(async () => {
     updated_at: new Date().toISOString(),
   })).filter((r) => r.fixture_id != null && r.home_team && r.away_team);
 
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
-
   if (rows.length > 0) {
     const { error } = await supabase
       .from("live_scores")
@@ -118,5 +177,23 @@ Deno.serve(async () => {
     if (error) return json({ ok: false, error: error.message, calls: 1 }, 500);
   }
 
-  return json({ ok: true, calls: 1, upserts: rows.length });
+  // Alertas: partidos que TRANSICIONAN a un estado raro (SUSPENDED/POSTPONED/
+  // CANCELLED) desde otro distinto. Un mail por evento, no en cada tick.
+  const alerts = rows.filter(
+    (r) =>
+      r.status_short != null &&
+      ALERT_STATUSES.includes(r.status_short) &&
+      prevStatus.get(r.fixture_id) !== r.status_short,
+  );
+  for (const a of alerts) {
+    await enviarAlerta(
+      `⚠️ Estado raro: ${a.home_team} vs ${a.away_team} → ${a.status_short}`,
+      `El partido ${a.home_team} vs ${a.away_team} (${a.match_date}) pasó a "${a.status_short}".\n` +
+        `Marcador actual: ${a.home_goals ?? "-"}-${a.away_goals ?? "-"} (min ${a.elapsed ?? "-"}).\n` +
+        `Estado anterior: ${prevStatus.get(a.fixture_id) ?? "(nuevo)"}.\n` +
+        `Revisalo a mano por si hay que ajustar el fixture.`,
+    );
+  }
+
+  return json({ ok: true, calls: 1, upserts: rows.length, alerts: alerts.length });
 });

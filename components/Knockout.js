@@ -3,7 +3,7 @@
 import { ROUNDS, kickoff } from "../lib/knockout";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundShort, roundName } from "../lib/i18n";
-import { getResult } from "../lib/results";
+import { getResult, isNoScoreStatus } from "../lib/results";
 import { resolveSlot, hasR32Projections } from "../lib/playoffPath";
 import { flag } from "../lib/teams";
 import { useLang } from "./LanguageContext";
@@ -52,6 +52,9 @@ function MatchCard({ match, tz, lang }) {
   const instant = kickoff(match);
   const r = getResult(match);
   const played = !!r && r.homeGoals != null && r.awayGoals != null;
+  // Aplazado/cancelado: sin marcador, pero igual mostramos el badge en lugar
+  // de la hora (y no la proyección tentativa de un partido que no se jugará).
+  const noScore = isNoScoreStatus(r);
 
   // Proyección de slots desde la tabla y los resultados: resolvemos el equipo
   // tanto de un "1.º/2.º Grupo X" como de un "Ganador N" (recursivo) aunque ya
@@ -62,7 +65,7 @@ function MatchCard({ match, tz, lang }) {
   // Verde si AMBOS equipos están confirmados (grupos terminados); si alguno es
   // tentativo —o un tercero por definir junto a uno confirmado—, amarillo.
   let projClass = "";
-  if (!played && (homeProj || awayProj)) {
+  if (!played && !noScore && (homeProj || awayProj)) {
     const allConfirmed =
       homeProj?.status === "confirmed" &&
       awayProj?.status === "confirmed";
@@ -90,7 +93,7 @@ function MatchCard({ match, tz, lang }) {
         <SlotName label={match.away} lang={lang} proj={awayProj} />
         {played && <span className="bk-goals">{r.awayGoals}</span>}
       </div>
-      {played && r.status ? (
+      {(played && r.status) || noScore ? (
         <div className="bk-when bk-when--live">
           <LiveBadge status={r.status} elapsed={r.elapsed} />
         </div>

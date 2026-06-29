@@ -941,6 +941,18 @@ body {
   color: var(--muted);
   font-style: italic;
 }
+.path-score {
+  margin-left: 8px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.path-score--won { color: #46c46e; }
+.path-score--lost { color: #e5687a; }
+.path-card--won { border-left-color: #46c46e; }
+.path-card--lost {
+  border-left-color: #e5687a;
+  opacity: 0.92;
+}
 
 .path-when, .path-venue {
   font-size: 0.78rem;
@@ -971,6 +983,10 @@ body {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--fg);
+}
+.mtp-outcome-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
 }
 .mtp-outcome--first { border-left-color: gold; }
 .mtp-outcome--second { border-left-color: #c0c0c0; }

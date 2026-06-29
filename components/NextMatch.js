@@ -6,6 +6,7 @@ import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatDate, formatTime } from "../lib/timezone";
 import { teamName, roundName } from "../lib/i18n";
+import { resolveSlot } from "../lib/playoffPath";
 import { getResult, isNoScoreStatus } from "../lib/results";
 import { useLang } from "./LanguageContext";
 import { useLiveResults } from "./LiveScoresProvider";
@@ -25,6 +26,11 @@ const ALL_MATCHES = [
 
 // El instante del primer partido del torneo = partido inaugural.
 const FIRST_KICKOFF = Math.min(...ALL_MATCHES.map((m) => m.t));
+
+// Resuelve un slot de eliminatoria ("1.º Grupo C", "Ganador 89", "3.º …") al
+// equipo real cuando ya se puede proyectar; en partidos de grupo el label ya
+// es el equipo, así que cae al label tal cual.
+const teamOf = (label) => resolveSlot(label)?.team || label;
 
 // "Faltan 3 d 4 h" / "Faltan 2 h 15 min" / "Faltan 12 min"
 function countdown(ms, t) {
@@ -123,6 +129,8 @@ export default function NextMatch({ tz }) {
             const r = getResult(m);
             const played = !!r && r.homeGoals != null && r.awayGoals != null;
             const noScore = isNoScoreStatus(r); // aplazado/cancelado: badge sin marcador
+            const home = teamOf(m.home);
+            const away = teamOf(m.away);
             return (
               <div
                 className="nm-match nm-match--clickable"
@@ -138,7 +146,7 @@ export default function NextMatch({ tz }) {
                 }}
               >
                 <div className="nm-teams">
-                  <TeamRow name={m.home} lang={lang} />
+                  <TeamRow name={home} lang={lang} />
                   {played ? (
                     <span className="nm-vs nm-score">
                       {r.homeGoals} - {r.awayGoals}
@@ -146,7 +154,7 @@ export default function NextMatch({ tz }) {
                   ) : (
                     <span className="nm-vs">{t("vs")}</span>
                   )}
-                  <TeamRow name={m.away} lang={lang} />
+                  <TeamRow name={away} lang={lang} />
                 </div>
                 {((played && r.status) || noScore) && (
                   <div className="nm-badge">
@@ -162,8 +170,8 @@ export default function NextMatch({ tz }) {
                 <div className="nm-group">{matchLabel(m)}</div>
                 <div className="nm-cal" onClick={(e) => e.stopPropagation()}>
                   <AddToCalendar
-                    home={m.home}
-                    away={m.away}
+                    home={home}
+                    away={away}
                     venue={m.venue}
                     city={m.city}
                     label={matchLabel(m)}
@@ -189,6 +197,8 @@ export default function NextMatch({ tz }) {
           <div className="nm-list">
             {nextUpMatches.map((m, i) => {
               const instant = new Date(m.t);
+              const home = teamOf(m.home);
+              const away = teamOf(m.away);
               return (
                 <div
                   className="nm-match nm-match--clickable"
@@ -204,9 +214,9 @@ export default function NextMatch({ tz }) {
                   }}
                 >
                   <div className="nm-teams">
-                    <TeamRow name={m.home} lang={lang} />
+                    <TeamRow name={home} lang={lang} />
                     <span className="nm-vs">{t("vs")}</span>
-                    <TeamRow name={m.away} lang={lang} />
+                    <TeamRow name={away} lang={lang} />
                   </div>
                   <div className="nm-when">
                     📅 {formatDate(instant, tz, lang)} · {formatTime(instant, tz, lang)}

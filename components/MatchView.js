@@ -35,6 +35,12 @@ ROUNDS.forEach((r) => r.matches.forEach((m) => (ROUND_BY_ID[m.id] = r.name)));
 function isGroupMatch(m) {
   return !!m && m.group != null;
 }
+// Resuelve un slot de eliminatoria ("2.º Grupo A", "Ganador 89", "3.º …") al
+// equipo real cuando ya se puede proyectar; en partidos de grupo el label ya
+// es el equipo, así que cae al label tal cual.
+function teamOf(label) {
+  return resolveSlot(label)?.team || label;
+}
 function roundOf(m) {
   if (!m || m.id == null) return null;
   return ROUND_BY_ID[m.id] || null;
@@ -114,6 +120,8 @@ function MatchPicker({ tz, onPick }) {
           const instant = kickoff(m);
           const r = getResult(m);
           const played = !!r && r.homeGoals != null && r.awayGoals != null;
+          const home = teamOf(m.home);
+          const away = teamOf(m.away);
           return (
             <button
               type="button"
@@ -126,7 +134,7 @@ function MatchPicker({ tz, onPick }) {
               </span>
               <span className="mv-item-teams">
                 <span className="mv-item-team">
-                  {flag(m.home)} {teamName(m.home, lang)}
+                  {flag(home)} {teamName(home, lang)}
                 </span>
                 {played ? (
                   <span className="mv-item-score">
@@ -136,7 +144,7 @@ function MatchPicker({ tz, onPick }) {
                   <span className="mv-item-vs">{t("vs")}</span>
                 )}
                 <span className="mv-item-team mv-item-team--away">
-                  {flag(m.away)} {teamName(m.away, lang)}
+                  {flag(away)} {teamName(away, lang)}
                 </span>
               </span>
               <span className="mv-item-arrow">→</span>

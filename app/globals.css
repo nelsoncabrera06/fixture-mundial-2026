@@ -952,6 +952,34 @@ body {
   max-width: 560px;
 }
 
+/* Badge de resultado definitivo (Mi Equipo → playoffs, grupos terminados) */
+.mtp-outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 22px;
+}
+.mtp-outcome-team {
+  font-size: 1.05rem;
+}
+.mtp-outcome-status {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+.mtp-outcome--first { border-left-color: gold; }
+.mtp-outcome--second { border-left-color: #c0c0c0; }
+.mtp-outcome--third { border-left-color: #cd7f32; }
+.mtp-outcome--eliminated {
+  border-left-color: var(--muted);
+  opacity: 0.85;
+}
+
 /* ── Favoritos - layout lista + detalle ───────────────────── */
 .favs-layout {
   display: flex;

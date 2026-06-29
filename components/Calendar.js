@@ -6,6 +6,7 @@ import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
 import { formatTime, dayKey } from "../lib/timezone";
 import { teamName, roundName, roundShort, langToLocale } from "../lib/i18n";
+import { resolveSlot } from "../lib/playoffPath";
 import { useLang } from "./LanguageContext";
 import { useOpenMatch } from "./MatchNavContext";
 
@@ -122,6 +123,11 @@ export default function Calendar({ tz }) {
     m.group ? t("group.badge", { g: m.group }) : roundName(m.label, lang);
   const matchShort = (m) =>
     m.group ? t("group.badge", { g: m.group }) : roundShort(m.label, lang);
+
+  // Resuelve un slot de eliminatoria ("1.º Grupo C", "Ganador 89", "3.º …") al
+  // equipo real cuando ya se puede proyectar; en partidos de grupo el label ya
+  // es el equipo, así que cae al label tal cual.
+  const teamOf = (label) => resolveSlot(label)?.team || label;
 
   const [now, setNow] = useState(null); // ms; null en SSR
   const [todayKey, setTodayKey] = useState(null);
@@ -304,6 +310,8 @@ export default function Calendar({ tz }) {
                         Math.max(28, (visibleEnd - it.start) * PX_PER_MIN) - 3;
                       const widthPct = 100 / it.cols;
                       const ko = KNOCKOUT_LABELS.has(it.m.label);
+                      const home = teamOf(it.m.home);
+                      const away = teamOf(it.m.away);
                       return (
                         <div
                           className={`cw-event cw-event--clickable ${ko ? "cw-event--ko" : ""}`}
@@ -317,7 +325,7 @@ export default function Calendar({ tz }) {
                               openMatch(it.m);
                             }
                           }}
-                          title={`${teamName(it.m.home, lang)} ${t("vs")} ${teamName(it.m.away, lang)} · ${matchLabel(it.m)} · ${it.m.venue}, ${it.m.city}`}
+                          title={`${teamName(home, lang)} ${t("vs")} ${teamName(away, lang)} · ${matchLabel(it.m)} · ${it.m.venue}, ${it.m.city}`}
                           style={{
                             top,
                             height,
@@ -334,10 +342,10 @@ export default function Calendar({ tz }) {
                             {formatTime(it.m.instant, tz, lang)}
                           </span>
                           <span className="cw-ev-team">
-                            {flag(it.m.home)} {teamName(it.m.home, lang)}
+                            {flag(home)} {teamName(home, lang)}
                           </span>
                           <span className="cw-ev-team">
-                            {flag(it.m.away)} {teamName(it.m.away, lang)}
+                            {flag(away)} {teamName(away, lang)}
                           </span>
                         </div>
                       );
@@ -403,7 +411,10 @@ export default function Calendar({ tz }) {
                   </div>
 
                   <div className="cal-day-matches">
-                    {day.matches.map((m, j) => (
+                    {day.matches.map((m, j) => {
+                      const home = teamOf(m.home);
+                      const away = teamOf(m.away);
+                      return (
                       <div
                         className="cal-match cal-match--clickable"
                         key={j}
@@ -422,9 +433,9 @@ export default function Calendar({ tz }) {
                         </span>
                         <span className="cal-match-main">
                           <span className="cal-match-teams">
-                            {flag(m.home)} {teamName(m.home, lang)}
+                            {flag(home)} {teamName(home, lang)}
                             <span className="sep">{t("vs")}</span>
-                            {flag(m.away)} {teamName(m.away, lang)}
+                            {flag(away)} {teamName(away, lang)}
                           </span>
                           <span className="cal-match-venue">
                             📍 {m.venue}, {m.city}
@@ -440,7 +451,8 @@ export default function Calendar({ tz }) {
                           {matchLabel(m)}
                         </span>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}

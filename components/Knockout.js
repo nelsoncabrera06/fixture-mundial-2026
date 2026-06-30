@@ -87,11 +87,21 @@ function MatchCard({ match, tz, lang }) {
     >
       <div className="bk-team">
         <SlotName label={match.home} lang={lang} proj={homeProj} />
-        {played && <span className="bk-goals">{r.homeGoals}</span>}
+        {played && (
+          <span className="bk-goals">
+            {r.homeGoals}
+            {r.penaltyHome != null && <span className="bk-pen">({r.penaltyHome})</span>}
+          </span>
+        )}
       </div>
       <div className="bk-team">
         <SlotName label={match.away} lang={lang} proj={awayProj} />
-        {played && <span className="bk-goals">{r.awayGoals}</span>}
+        {played && (
+          <span className="bk-goals">
+            {r.awayGoals}
+            {r.penaltyAway != null && <span className="bk-pen">({r.penaltyAway})</span>}
+          </span>
+        )}
       </div>
       {(played && r.status) || noScore ? (
         <div className="bk-when bk-when--live">

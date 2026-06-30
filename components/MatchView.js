@@ -214,9 +214,16 @@ function MatchDetail({ match, tz, onBack }) {
           <Side label={match.home} proj={homeProj} lang={lang} t={t} />
           <div className="md-mid">
             {played ? (
-              <span className="md-num">
-                {r.homeGoals} <span className="md-dash">-</span> {r.awayGoals}
-              </span>
+              <>
+                <span className="md-num">
+                  {r.homeGoals} <span className="md-dash">-</span> {r.awayGoals}
+                </span>
+                {r.penaltyHome != null && (
+                  <span className="md-pen">
+                    {t("live.pen")}: {r.penaltyHome}-{r.penaltyAway}
+                  </span>
+                )}
+              </>
             ) : (
               <span className="md-vs">{t("vs")}</span>
             )}

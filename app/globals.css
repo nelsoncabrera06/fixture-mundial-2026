@@ -2870,6 +2870,12 @@ body {
   color: var(--text);
   font-variant-numeric: tabular-nums;
 }
+.bk-pen {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 2px;
+}
 .bk-match--played .bk-team-name {
   font-weight: 700;
 }
@@ -3214,10 +3220,17 @@ body {
 }
 .md-mid {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-width: 64px;
   padding-top: 8px;
+}
+.md-pen {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
 }
 .md-num {
   font-size: 2rem;

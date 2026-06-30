@@ -157,18 +157,38 @@ Deno.serve(async () => {
   const matches = body.matches ?? [];
 
   // deno-lint-ignore no-explicit-any
-  const rows = matches.map((m: any) => ({
-    fixture_id: m.id,
-    league_id: null,
-    match_date: String(m.utcDate ?? "").slice(0, 10),
-    home_team: m.homeTeam?.name ?? "",
-    away_team: m.awayTeam?.name ?? "",
-    home_goals: m.score?.fullTime?.home ?? null,
-    away_goals: m.score?.fullTime?.away ?? null,
-    status_short: m.status ?? null,   // SCHEDULED | TIMED | IN_PLAY | PAUSED | FINISHED | ...
-    elapsed: m.minute ?? null,        // football-data free no siempre trae el minuto
-    updated_at: new Date().toISOString(),
-  })).filter((r) => r.fixture_id != null && r.home_team && r.away_team);
+  const rows = matches.map((m: any) => {
+    const duration   = m.score?.duration ?? null;   // REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT
+    const homePen    = m.score?.penalties?.home ?? null;
+    const awayPen    = m.score?.penalties?.away ?? null;
+    const homeFullT  = m.score?.fullTime?.home ?? null;
+    const awayFullT  = m.score?.fullTime?.away ?? null;
+
+    // football-data (free) incluye los penales en score.fullTime para partidos
+    // que van a tiros. Restamos para quedarnos con el marcador real del partido.
+    let homeGoals = homeFullT;
+    let awayGoals = awayFullT;
+    if (duration === "PENALTY_SHOOTOUT" && homePen != null && homeFullT != null) {
+      homeGoals = homeFullT - homePen;
+      awayGoals = awayFullT! - awayPen!;
+    }
+
+    return {
+      fixture_id: m.id,
+      league_id: null,
+      match_date: String(m.utcDate ?? "").slice(0, 10),
+      home_team: m.homeTeam?.name ?? "",
+      away_team: m.awayTeam?.name ?? "",
+      home_goals: homeGoals,
+      away_goals: awayGoals,
+      home_penalties: homePen,
+      away_penalties: awayPen,
+      duration,
+      status_short: m.status ?? null,   // SCHEDULED | TIMED | IN_PLAY | PAUSED | FINISHED | ...
+      elapsed: m.minute ?? null,        // football-data free no siempre trae el minuto
+      updated_at: new Date().toISOString(),
+    };
+  }).filter((r) => r.fixture_id != null && r.home_team && r.away_team);
 
   if (rows.length > 0) {
     const { error } = await supabase

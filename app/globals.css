@@ -224,6 +224,11 @@ body {
   margin: 14px 0 22px;
   box-shadow: var(--shadow);
 }
+.live-loading-hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 10px;
+}
 .tz-banner .tz-text {
   flex: 1 1 260px;
   font-size: 0.9rem;

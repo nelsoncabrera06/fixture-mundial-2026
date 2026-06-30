@@ -20,22 +20,34 @@ import { setLiveResults } from "../lib/results";
 import { rowsToResults } from "../lib/liveScores";
 
 const POLL_MS = 30000;
+// Si el fetch falla, reintenta con backoff: 3s → 8s → 20s → luego ciclo normal.
+const RETRY_DELAYS = [3000, 8000, 20000];
 
-const LiveScoresContext = createContext(0);
+const LiveScoresContext = createContext({ version: 0, loading: true });
 
 export function LiveScoresProvider({ children }) {
-  const [version, setVersion] = useState(0);
+  const [state, setState] = useState({ version: 0, loading: true });
 
   useEffect(() => {
     let cancelled = false;
+    let retryCount = 0;
+    let retryTimer = null;
 
     async function refresh() {
       const { data, error } = await supabase
         .from("live_scores")
         .select("*");
-      if (cancelled || error || !data) return;
+      if (cancelled) return;
+      if (error || !data) {
+        // Reintento con backoff antes de esperar el ciclo completo de 30s.
+        const delay = RETRY_DELAYS[retryCount] ?? POLL_MS;
+        retryCount = Math.min(retryCount + 1, RETRY_DELAYS.length);
+        retryTimer = setTimeout(refresh, delay);
+        return;
+      }
+      retryCount = 0;
       setLiveResults(rowsToResults(data));
-      setVersion((v) => v + 1); // fuerza re-render de los consumidores
+      setState((s) => ({ version: s.version + 1, loading: false }));
     }
 
     refresh();
@@ -43,11 +55,12 @@ export function LiveScoresProvider({ children }) {
     return () => {
       cancelled = true;
       clearInterval(id);
+      if (retryTimer) clearTimeout(retryTimer);
     };
   }, []);
 
   return (
-    <LiveScoresContext.Provider value={version}>
+    <LiveScoresContext.Provider value={state}>
       {children}
     </LiveScoresContext.Provider>
   );
@@ -57,5 +70,10 @@ export function LiveScoresProvider({ children }) {
 // número que cambia con cada refresco (sirve solo para gatillar el re-render;
 // los datos se leen con getResult() de lib/results.js).
 export function useLiveResults() {
-  return useContext(LiveScoresContext);
+  return useContext(LiveScoresContext).version;
+}
+
+// Devuelve true mientras el primer fetch no completó exitosamente.
+export function useLiveLoading() {
+  return useContext(LiveScoresContext).loading;
 }

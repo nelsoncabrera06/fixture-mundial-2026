@@ -7,7 +7,7 @@ import { getResult, isNoScoreStatus } from "../lib/results";
 import { resolveSlot, hasR32Projections } from "../lib/playoffPath";
 import { flag } from "../lib/teams";
 import { useLang } from "./LanguageContext";
-import { useLiveResults } from "./LiveScoresProvider";
+import { useLiveResults, useLiveLoading } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 
@@ -152,7 +152,8 @@ function Tree({ node, side, tz, lang }) {
 
 export default function Knockout({ tz }) {
   const { lang, t } = useLang();
-  useLiveResults(); // re-render cuando llegan marcadores nuevos
+  useLiveResults();
+  const loading = useLiveLoading();
   const left = buildTree("101"); // semifinal izquierda y su rama
   const right = buildTree("102"); // semifinal derecha y su rama
   const full = buildTree("104"); // bracket completo (R32 → Final) para mobile
@@ -171,6 +172,9 @@ export default function Knockout({ tz }) {
 
   return (
     <>
+      {loading && (
+        <p className="live-loading-hint">{t("ko.loadingScores")}</p>
+      )}
       <p className="tz-text" style={{ marginTop: 0, marginBottom: 16 }}>
         {t("ko.intro")}
       </p>

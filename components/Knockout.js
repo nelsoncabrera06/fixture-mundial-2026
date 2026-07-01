@@ -8,7 +8,7 @@ import { resolveSlot, hasR32Projections } from "../lib/playoffPath";
 import { flag } from "../lib/teams";
 import { useRef, useState, useEffect } from "react";
 import { useLang } from "./LanguageContext";
-import { useLiveResults, useLiveLoading } from "./LiveScoresProvider";
+import { useLiveResults, useLiveLoading, useLiveRefresh } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 
@@ -155,12 +155,14 @@ export default function Knockout({ tz }) {
   const { lang, t } = useLang();
   const version = useLiveResults();
   const providerLoading = useLiveLoading();
+  const liveRefresh = useLiveRefresh();
   const mountVersion = useRef(version);
   // Si el provider aún estaba cargando al montar (tab default), ignoramos el
   // primer increment (fetch inicial) y esperamos el siguiente poll real.
   const skipFirst = useRef(providerLoading);
   const [tabLoading, setTabLoading] = useState(true);
   useEffect(() => {
+    liveRefresh(); // fetch inmediato al abrir la tab
     const timer = setTimeout(() => setTabLoading(false), 35000);
     return () => clearTimeout(timer);
   }, []);

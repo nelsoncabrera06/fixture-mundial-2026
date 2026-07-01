@@ -14,7 +14,7 @@
 // resultados llaman useLiveResults() y se re-renderizan cuando llega data nueva.
 // ---------------------------------------------------------------------------
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { setLiveResults } from "../lib/results";
 import { rowsToResults } from "../lib/liveScores";
@@ -23,10 +23,11 @@ const POLL_MS = 30000;
 // Si el fetch falla, reintenta con backoff: 3s → 8s → 20s → luego ciclo normal.
 const RETRY_DELAYS = [3000, 8000, 20000];
 
-const LiveScoresContext = createContext({ version: 0, loading: true });
+const LiveScoresContext = createContext({ version: 0, loading: true, refresh: () => {} });
 
 export function LiveScoresProvider({ children }) {
   const [state, setState] = useState({ version: 0, loading: true });
+  const refreshRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,17 +51,19 @@ export function LiveScoresProvider({ children }) {
       setState((s) => ({ version: s.version + 1, loading: false }));
     }
 
+    refreshRef.current = refresh;
     refresh();
     const id = setInterval(refresh, POLL_MS);
     return () => {
       cancelled = true;
+      refreshRef.current = null;
       clearInterval(id);
       if (retryTimer) clearTimeout(retryTimer);
     };
   }, []);
 
   return (
-    <LiveScoresContext.Provider value={state}>
+    <LiveScoresContext.Provider value={{ ...state, refresh: () => refreshRef.current?.() }}>
       {children}
     </LiveScoresContext.Provider>
   );
@@ -76,4 +79,9 @@ export function useLiveResults() {
 // Devuelve true mientras el primer fetch no completó exitosamente.
 export function useLiveLoading() {
   return useContext(LiveScoresContext).loading;
+}
+
+// Dispara un fetch inmediato (sin resetear el intervalo de 30s).
+export function useLiveRefresh() {
+  return useContext(LiveScoresContext).refresh;
 }

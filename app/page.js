@@ -27,7 +27,7 @@ const TZ_STORAGE_KEY = "fixture2026.tz";
 export default function Home() {
   const { user, updatePrefs } = useAuth();
   const { t } = useLang();
-  const [tab, setTab] = useState("grupos");
+  const [tab, setTab] = useState("playoff");
   const [tz, setTz] = useState(DEFAULT_TZ);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   // Grupo activo en la pestaña "Grupos" (también lo setea el link desde

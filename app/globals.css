@@ -225,9 +225,30 @@ body {
   box-shadow: var(--shadow);
 }
 .live-loading-hint {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin: 0 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px 5px 9px;
+  margin: 0 0 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+.live-loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  animation: live-pulse 1.2s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.35; transform: scale(0.7); }
 }
 .tz-banner .tz-text {
   flex: 1 1 260px;

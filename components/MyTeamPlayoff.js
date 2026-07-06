@@ -151,6 +151,7 @@ function PathSteps({ team, steps, resolved, tz, lang, t }) {
                   {result && (
                     <span className={`path-score path-score--${result === "W" ? "won" : "lost"}`}>
                       {step.teamGoals} - {step.oppGoals}
+                      {step.teamPenalty != null && ` (${step.teamPenalty}-${step.oppPenalty})`}
                     </span>
                   )}
                 </div>

@@ -238,6 +238,9 @@ function MatchDetail({ match, tz, onBack }) {
           <div className="md-info-row">
             📍 {match.venue}, {match.city}
           </div>
+          {match.id != null && (
+            <div className="md-info-id">Partido id: {match.id}</div>
+          )}
         </div>
 
         <div className="md-cal">

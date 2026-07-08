@@ -3284,6 +3284,11 @@ body {
   font-size: 0.92rem;
   color: var(--muted);
 }
+.md-info-id {
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.6;
+}
 .md-cal {
   margin-top: 14px;
 }

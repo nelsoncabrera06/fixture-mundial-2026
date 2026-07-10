@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GROUP_MATCHES, kickoff } from "../lib/matches";
 import { ROUNDS } from "../lib/knockout";
 import { flag } from "../lib/teams";
@@ -132,6 +132,8 @@ export default function Calendar({ tz }) {
   const [now, setNow] = useState(null); // ms; null en SSR
   const [todayKey, setTodayKey] = useState(null);
   const [weekIdx, setWeekIdx] = useState(0);
+  const todayRef = useRef(null);
+  const scrolledRef = useRef(false);
 
   useEffect(() => {
     setNow(Date.now());
@@ -167,6 +169,14 @@ export default function Calendar({ tz }) {
     const i = weekStarts.indexOf(weekStartKey(todayKey));
     if (i >= 0) setWeekIdx(i);
   }, [todayKey, weekStarts]);
+
+  // Al entrar a la vista, la lista mobile hace scroll automático hasta el día
+  // de hoy (una sola vez), dejándolo cerca del principio de la pantalla.
+  useEffect(() => {
+    if (scrolledRef.current || !todayKey || !todayRef.current) return;
+    scrolledRef.current = true;
+    todayRef.current.scrollIntoView({ block: "start" });
+  }, [todayKey, listWeeks]);
 
   const safeIdx = Math.min(weekIdx, Math.max(0, weekStarts.length - 1));
   const weekStart = weekStarts[safeIdx];
@@ -396,6 +406,7 @@ export default function Calendar({ tz }) {
                     day.key === todayKey ? "cal-day--today" : ""
                   }`}
                   key={day.key}
+                  ref={day.key === todayKey ? todayRef : null}
                 >
                   <div className="cal-day-head">
                     <span className="cal-day-name">{dayLabel(day.key, locale)}</span>

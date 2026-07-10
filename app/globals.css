@@ -3191,7 +3191,7 @@ body {
 }
 .md-score {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: start;
   gap: 10px;
   margin-bottom: 18px;
@@ -3202,6 +3202,7 @@ body {
   align-items: center;
   gap: 8px;
   text-align: center;
+  min-width: 0;
 }
 .md-flag {
   font-size: 2.6rem;
@@ -3210,6 +3211,7 @@ body {
 .md-name {
   font-weight: 800;
   font-size: 1rem;
+  word-break: break-word;
 }
 /* Placeholder original ("1.º Grupo J") + marca tentativo/confirmado, debajo
    del equipo proyectado en la ficha del partido. */
@@ -3223,7 +3225,8 @@ body {
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--muted);
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
 }
 .md-proj-tag::before {
   content: "";
@@ -3291,6 +3294,33 @@ body {
 }
 .md-cal {
   margin-top: 14px;
+}
+
+/* Pantallas angostas: nombres largos y el tag de proyección ("Winner 94 ·
+   confirmado") ya no fuerzan overflow horizontal de la ficha (ver .md-score). */
+@media (max-width: 420px) {
+  .md-card {
+    padding: 16px 14px 18px;
+  }
+  .md-score {
+    gap: 6px;
+  }
+  .md-flag {
+    font-size: 2.1rem;
+  }
+  .md-name {
+    font-size: 0.88rem;
+  }
+  .md-proj-tag {
+    font-size: 0.66rem;
+    padding: 2px 7px;
+  }
+  .md-num {
+    font-size: 1.6rem;
+  }
+  .md-mid {
+    min-width: 44px;
+  }
 }
 
 /* ---- Tabla de posiciones del grupo ---- */

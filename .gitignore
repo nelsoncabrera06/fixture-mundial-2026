@@ -33,4 +33,7 @@ yarn-error.log*
 # playwright mcp (logs/screenshots locales)
 /.playwright-mcp
 
+# supabase CLI (cache local de `supabase link`)
+/supabase/.temp
+
 /.vscode

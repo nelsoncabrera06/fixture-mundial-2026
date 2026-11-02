@@ -6,9 +6,7 @@ import { teamName, roundShort, roundName } from "../lib/i18n";
 import { getResult, isNoScoreStatus } from "../lib/results";
 import { resolveSlot, hasR32Projections } from "../lib/playoffPath";
 import { flag } from "../lib/teams";
-import { useRef, useState, useEffect } from "react";
 import { useLang } from "./LanguageContext";
-import { useLiveResults, useLiveLoading, useLiveRefresh } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 
@@ -153,29 +151,6 @@ function Tree({ node, side, tz, lang }) {
 
 export default function Knockout({ tz }) {
   const { lang, t } = useLang();
-  const version = useLiveResults();
-  const providerLoading = useLiveLoading();
-  const liveRefresh = useLiveRefresh();
-  const mountVersion = useRef(version);
-  // Si el provider aún estaba cargando al montar (tab default), ignoramos el
-  // primer increment (fetch inicial) y esperamos el siguiente poll real.
-  const skipFirst = useRef(providerLoading);
-  const [tabLoading, setTabLoading] = useState(true);
-  useEffect(() => {
-    liveRefresh(); // fetch inmediato al abrir la tab
-    const timer = setTimeout(() => setTabLoading(false), 35000);
-    return () => clearTimeout(timer);
-  }, []);
-  useEffect(() => {
-    if (version > mountVersion.current) {
-      if (skipFirst.current) {
-        skipFirst.current = false;
-        mountVersion.current = version; // esperar el siguiente poll
-      } else {
-        setTabLoading(false);
-      }
-    }
-  }, [version]);
 
   const left = buildTree("101"); // semifinal izquierda y su rama
   const right = buildTree("102"); // semifinal derecha y su rama
@@ -195,12 +170,6 @@ export default function Knockout({ tz }) {
 
   return (
     <>
-      {tabLoading && (
-        <div className="live-loading-hint">
-          <span className="live-loading-dot" />
-          {t("ko.loadingScores")}
-        </div>
-      )}
       <p className="tz-text" style={{ marginTop: 0, marginBottom: 16 }}>
         {t("ko.intro")}
       </p>

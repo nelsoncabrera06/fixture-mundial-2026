@@ -6,7 +6,6 @@ import { formatDate, formatTime } from "../lib/timezone";
 import { teamName } from "../lib/i18n";
 import { getResult, isNoScoreStatus } from "../lib/results";
 import { useLang } from "./LanguageContext";
-import { useLiveResults } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
@@ -21,7 +20,6 @@ function TeamLabel({ name, lang }) {
 
 export default function GroupStage({ tz, onOpenGroup }) {
   const { lang, t } = useLang();
-  useLiveResults(); // re-render cuando llegan marcadores nuevos
   const openMatch = useOpenMatch();
   return (
     <div className="groups-grid">

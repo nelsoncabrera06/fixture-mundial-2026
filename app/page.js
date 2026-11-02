@@ -12,11 +12,10 @@ import About from "../components/About";
 import MyTeam from "../components/MyTeam";
 import Favorites from "../components/Favorites";
 import MyAccount from "../components/MyAccount";
-import Admin from "../components/Admin";
 import Simulations from "../components/Simulations";
 import SimulationBubble from "../components/SimulationBubble";
 import LanguagePicker from "../components/LanguagePicker";
-import { useAuth } from "../components/AuthContext";
+import { useProfile } from "../components/ProfileContext";
 import { useLang } from "../components/LanguageContext";
 import { MatchNavContext } from "../components/MatchNavContext";
 import { DEFAULT_TZ } from "../lib/timezone";
@@ -25,7 +24,7 @@ import { DEFAULT_TZ } from "../lib/timezone";
 const TZ_STORAGE_KEY = "fixture2026.tz";
 
 export default function Home() {
-  const { user, updatePrefs } = useAuth();
+  const { user, updatePrefs } = useProfile();
   const { t } = useLang();
   const [tab, setTab] = useState("playoff");
   const [tz, setTz] = useState(DEFAULT_TZ);
@@ -48,7 +47,7 @@ export default function Home() {
     setTab("partido");
   };
 
-  // El equipo mostrado en "Mi cuenta" sale del registro del usuario.
+  // El equipo mostrado en "Mi cuenta" sale del perfil local.
   const myTeam = user?.team || "Argentina";
 
   // Solo en cliente (evita desajuste de hidratación): si hay una zona guardada
@@ -59,15 +58,10 @@ export default function Home() {
     setTz(saved || "auto");
   }, []);
 
-  // Con sesión activa, la zona horaria guardada del usuario tiene prioridad.
+  // La zona horaria guardada en el perfil tiene prioridad.
   useEffect(() => {
     if (user?.timezone) setTz(user.timezone);
   }, [user]);
-
-  // Si el usuario deja de ser admin (logout) estando en la pestaña Admin, salir.
-  useEffect(() => {
-    if (tab === "admin" && user?.role !== "admin") setTab("grupos");
-  }, [tab, user]);
 
   const changeTz = (value) => {
     setTz(value);
@@ -86,18 +80,9 @@ export default function Home() {
     { id: "miequipo", label: t("nav.miequipo"), icon: "⭐" },
     { id: "favoritos", label: t("nav.favoritos"), icon: "❤️" },
     { id: "simulaciones", label: t("nav.simulaciones"), icon: "🧪" },
-    {
-      id: "cuenta",
-      label: user ? t("nav.cuenta") : t("nav.login"),
-      icon: "👤",
-    },
+    { id: "cuenta", label: t("nav.cuenta"), icon: "⚙️" },
     { id: "sobre", label: t("nav.sobre"), icon: "✉️" },
   ];
-  // La sección Admin solo aparece para usuarios con rol admin.
-  if (user?.role === "admin") {
-    sections.push({ id: "admin", label: t("nav.admin"), icon: "🛡️" });
-  }
-
   return (
     <MatchNavContext.Provider value={openMatch}>
     <div className={`layout ${sidebarOpen ? "" : "sidebar-collapsed"}`}>
@@ -174,14 +159,10 @@ export default function Home() {
           {tab === "miequipo" && <MyTeam tz={tz} />}
           {tab === "favoritos" && <Favorites tz={tz} />}
           {tab === "simulaciones" && (
-            <Simulations
-              onGoToAccount={() => setTab("cuenta")}
-              onGoToMatch={() => setTab("partido")}
-            />
+            <Simulations onGoToMatch={() => setTab("partido")} />
           )}
           {tab === "sobre" && <About />}
           {tab === "cuenta" && <MyAccount myTeam={myTeam} tz={tz} onTzChange={changeTz} />}
-          {tab === "admin" && <Admin />}
 
           <footer className="footer">
             {t("footer.pre")}

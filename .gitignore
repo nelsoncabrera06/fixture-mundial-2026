@@ -33,7 +33,9 @@ yarn-error.log*
 # playwright mcp (logs/screenshots locales)
 /.playwright-mcp
 
-# supabase CLI (cache local de `supabase link`)
-/supabase/.temp
+# backup de la base vieja de Supabase: contiene emails y datos personales
+# (y pesa) — NUNCA al repo. Se guarda afuera, ej. ~/backups/
+/db
+/dumps
 
 /.vscode

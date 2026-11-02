@@ -7,7 +7,6 @@ import { teamName } from "../lib/i18n";
 import { useLang } from "./LanguageContext";
 import { getResult, isNoScoreStatus } from "../lib/results";
 import { computeStandings } from "../lib/standings";
-import { useLiveResults } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
@@ -22,7 +21,6 @@ function TeamLabel({ name, lang }) {
 
 export default function Groups({ tz, group, onSelectGroup }) {
   const { lang, t } = useLang();
-  useLiveResults(); // re-render cuando llegan marcadores nuevos
   const openMatch = useOpenMatch();
   const active = GROUP_NAMES.includes(group) ? group : GROUP_NAMES[0];
 

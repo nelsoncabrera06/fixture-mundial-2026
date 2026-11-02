@@ -6,14 +6,26 @@
 // Lista 4 escenarios. El usuario puede activar uno (entra en modo simulación),
 // renombrarlo, resetearlo (borra sus resultados simulados) o desactivar el
 // modo. La simulación en sí (editar marcadores) se hace en la vista Partido.
+//
+// Con el Mundial terminado no queda ningún partido simulable (todos tienen
+// resultado final), así que se avisa en vez de ofrecer un botón que no hace
+// nada. Los escenarios guardados se conservan.
 // ---------------------------------------------------------------------------
 
 import { useSimulation, SIM_SCENARIOS } from "./SimulationContext";
 import { useLang } from "./LanguageContext";
+import { GROUP_MATCHES } from "../lib/matches";
+import { ROUNDS } from "../lib/knockout";
+import { getResult, isFinalResult } from "../lib/results";
 
-export default function Simulations({ onGoToAccount, onGoToMatch }) {
+// ¿Queda algún partido sin resultado final? (se calcula una sola vez: los datos
+// son estáticos).
+const HAS_SIMULABLE = [...GROUP_MATCHES, ...ROUNDS.flatMap((r) => r.matches)].some(
+  (m) => !isFinalResult(getResult(m))
+);
+
+export default function Simulations({ onGoToMatch }) {
   const {
-    enabled,
     active,
     activate,
     deactivate,
@@ -26,27 +38,17 @@ export default function Simulations({ onGoToAccount, onGoToMatch }) {
   const { t } = useLang();
   void version;
 
-  if (!enabled) {
-    return (
-      <div className="sim-tab">
-        <p className="tz-text" style={{ marginTop: 0 }}>
-          {t("sim.intro")}
-        </p>
-        <div className="sim-login">
-          <span>{t("sim.login")}</span>
-          <button className="sim-login-cta" onClick={onGoToAccount}>
-            {t("sim.login.cta")}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="sim-tab">
       <p className="tz-text" style={{ marginTop: 0, marginBottom: 18 }}>
         {t("sim.intro")}
       </p>
+
+      {!HAS_SIMULABLE && (
+        <p className="sim-note" role="note">
+          🏁 {t("sim.nothing")}
+        </p>
+      )}
 
       <div className="sim-grid">
         {SIM_SCENARIOS.map((n) => {
@@ -84,7 +86,7 @@ export default function Simulations({ onGoToAccount, onGoToMatch }) {
               <div className="sim-card-actions">
                 {isActive ? (
                   <>
-                    {onGoToMatch && (
+                    {onGoToMatch && HAS_SIMULABLE && (
                       <button
                         className="sim-btn sim-btn--primary"
                         onClick={onGoToMatch}

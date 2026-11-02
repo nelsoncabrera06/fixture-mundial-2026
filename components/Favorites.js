@@ -8,8 +8,7 @@ import { teamName } from "../lib/i18n";
 import { useLang } from "./LanguageContext";
 import { useOpenMatch } from "./MatchNavContext";
 import MyTeamPlayoff from "./MyTeamPlayoff";
-import { useAuth } from "./AuthContext";
-import AuthModal from "./AuthModal";
+import { useProfile } from "./ProfileContext";
 
 function TeamLabel({ name, lang }) {
   return (
@@ -20,34 +19,19 @@ function TeamLabel({ name, lang }) {
 }
 
 export default function Favorites({ tz }) {
-  const { user, ready, updatePrefs } = useAuth();
+  const { user, ready, updatePrefs } = useProfile();
   const { lang, t } = useLang();
   const openMatch = useOpenMatch();
-  const [authOpen, setAuthOpen] = useState(false);
 
   // `activeTeam` (qué favorito se está viendo) es solo estado de UI; la LISTA
-  // de favoritos vive en la DB (profiles.favorites).
+  // de favoritos vive en el perfil local (lib/localProfile.js).
   const [activeTeam, setActiveTeam] = useState(null);
   const [editing, setEditing] = useState(false);
   const [section, setSection] = useState("grupos");
   const [saveError, setSaveError] = useState("");
 
-  // Hasta saber si hay sesión, no renderizamos nada (evita parpadeo).
-  if (!ready) return null;
-
-  if (!user) {
-    return (
-      <div className="locked-screen">
-        <div className="locked-icon">🔒</div>
-        <h2>{t("fav.locked.title")}</h2>
-        <p>{t("fav.locked.sub")}</p>
-        <button className="auth-submit" onClick={() => setAuthOpen(true)}>
-          {t("common.signin")}
-        </button>
-        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      </div>
-    );
-  }
+  // Hasta que el perfil local carga no renderizamos (evita parpadeo).
+  if (!ready || !user) return null;
 
   const allTeams = Object.keys(FLAGS).sort();
   const favorites = user.favorites || [];

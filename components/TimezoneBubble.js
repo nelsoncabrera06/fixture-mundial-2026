@@ -1,13 +1,11 @@
 "use client";
 
-// Aviso suave de zona horaria. Muchos usuarios quedaron con la zona del dev
-// (Europe/Helsinki) por un default viejo del signup. Esta burbuja detecta la
-// zona real del dispositivo (Intl) y, SOLO si la hora mostrada difiere de la
-// configurada, sugiere corregirla. Si coinciden (o ya está en "auto"), no
+// Aviso suave de zona horaria. Si la hora mostrada difiere de la zona real del
+// dispositivo, sugiere corregirla. Si coinciden (o ya está en "auto"), no
 // aparece — así no molesta a quien la tiene bien.
 
 import { useEffect, useState } from "react";
-import { useAuth } from "./AuthContext";
+import { useProfile } from "./ProfileContext";
 import { useLang } from "./LanguageContext";
 import { resolveTz, tzLabel, formatTime } from "../lib/timezone";
 
@@ -20,7 +18,7 @@ function prettyZone(zone) {
 }
 
 export default function TimezoneBubble({ tz, onGoToAccount }) {
-  const { user } = useAuth();
+  const { user, ready } = useProfile();
   const { t } = useLang();
   // Se evalúa solo en cliente (Intl + localStorage) para no romper la
   // hidratación del SSR.
@@ -37,9 +35,9 @@ export default function TimezoneBubble({ tz, onGoToAccount }) {
     setDismissed(true);
   };
 
-  // No mostrar si: no hay sesión, ya la cerró, todavía no detectamos la zona,
-  // o el usuario usa "auto" (que ya sigue al dispositivo).
-  if (!user || dismissed || !detected || tz === "auto") return null;
+  // No mostrar si: el perfil todavía no cargó, ya la cerró, todavía no
+  // detectamos la zona, o el usuario usa "auto" (que ya sigue al dispositivo).
+  if (!ready || !user || dismissed || !detected || tz === "auto") return null;
 
   // Comparamos por la HORA mostrada, no por el nombre de la zona: dos zonas
   // distintas con el mismo offset (p.ej. Madrid vs París) muestran lo mismo,

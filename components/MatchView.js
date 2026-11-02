@@ -23,7 +23,6 @@ import { getResult, matchId, isSimEditable, isSimulated, isNoScoreStatus } from 
 import { computeStandings } from "../lib/standings";
 import { resolveSlot } from "../lib/playoffPath";
 import { useLang } from "./LanguageContext";
-import { useLiveResults } from "./LiveScoresProvider";
 import { useSimulation } from "./SimulationContext";
 import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
@@ -59,7 +58,6 @@ export default function MatchView({ tz, match, onSelect, onClear }) {
 // ── Selector en cascada: instancia → (grupo) → partido ──────────────────────
 function MatchPicker({ tz, onPick }) {
   const { lang, t } = useLang();
-  useLiveResults();
   // "grupos" o el id de una ronda ("r32", "r16", ...).
   const [stage, setStage] = useState("grupos");
   const [group, setGroup] = useState("A");
@@ -159,7 +157,6 @@ function MatchPicker({ tz, onPick }) {
 // ── Ficha de un partido ─────────────────────────────────────────────────────
 function MatchDetail({ match, tz, onBack }) {
   const { lang, t } = useLang();
-  useLiveResults(); // re-render cuando llegan marcadores nuevos
   const sim = useSimulation();
   void sim.version; // re-render al guardar/quitar una simulación
   const instant = kickoff(match);

@@ -9,7 +9,6 @@ import { teamName, roundName } from "../lib/i18n";
 import { resolveSlot } from "../lib/playoffPath";
 import { getResult, isNoScoreStatus } from "../lib/results";
 import { useLang } from "./LanguageContext";
-import { useLiveResults } from "./LiveScoresProvider";
 import { useOpenMatch } from "./MatchNavContext";
 import LiveBadge from "./LiveBadge";
 import AddToCalendar from "./AddToCalendar";
@@ -53,7 +52,6 @@ function TeamRow({ name, lang }) {
 
 export default function NextMatch({ tz }) {
   const { lang, t } = useLang();
-  useLiveResults(); // re-render cuando llegan marcadores nuevos
   const openMatch = useOpenMatch();
   // Etiqueta traducida del partido: grupo o nombre de ronda.
   const matchLabel = (m) =>

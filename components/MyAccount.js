@@ -1,74 +1,53 @@
 "use client";
 
-import { useState } from "react";
+// ---------------------------------------------------------------------------
+// "Mi cuenta" sin cuentas: el perfil vive en este navegador (lib/localProfile).
+// Acá se edita el nombre, el equipo, la zona horaria y el idioma, y se puede
+// borrar todo lo guardado localmente.
+// ---------------------------------------------------------------------------
+
+import { useEffect, useState } from "react";
 import { flag } from "../lib/teams";
 import { TIMEZONES } from "../lib/timezone";
 import { teamName, LANGS, LANG_LABELS } from "../lib/i18n";
-import { useAuth } from "./AuthContext";
+import { MAX_USERNAME } from "../lib/localProfile";
+import { useProfile } from "./ProfileContext";
 import { useLang } from "./LanguageContext";
-import { changePassword, deleteAccount } from "../lib/auth";
-import AuthModal from "./AuthModal";
 
 export default function MyAccount({ myTeam, tz, onTzChange }) {
-  const { user, signOut } = useAuth();
+  const { user, ready, updatePrefs, reset } = useProfile();
   const { lang, setLang, t } = useLang();
-  const [authOpen, setAuthOpen] = useState(false);
 
-  // Cambio de contraseña.
-  const [showPwd, setShowPwd] = useState(false);
-  const [curPwd, setCurPwd] = useState("");
-  const [newPwd, setNewPwd] = useState("");
-  const [pwdMsg, setPwdMsg] = useState(null); // { type: "ok" | "error", text }
+  // Borrador del nombre: se guarda recién al tocar "Guardar".
+  const [nameDraft, setNameDraft] = useState("");
+  const [nameMsg, setNameMsg] = useState(null); // { type: "ok" | "error", text }
+  const [confirmReset, setConfirmReset] = useState(false);
 
-  // Eliminar cuenta (requiere escribir el nombre de usuario).
-  const [showDelete, setShowDelete] = useState(false);
-  const [confirmName, setConfirmName] = useState("");
-  const [delError, setDelError] = useState("");
+  useEffect(() => {
+    if (user) setNameDraft(user.username);
+  }, [user?.username]);
 
-  // Sin sesión: pantalla bloqueada con acceso al modal.
-  if (!user) {
-    return (
-      <div className="locked-screen">
-        <div className="locked-icon">👤</div>
-        <h2>{t("account.locked.title")}</h2>
-        <p>{t("account.locked.sub")}</p>
-        <button className="auth-submit" onClick={() => setAuthOpen(true)}>
-          {t("account.locked.cta")}
-        </button>
-        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      </div>
-    );
-  }
+  // Hasta que el perfil carga no renderizamos (evita parpadeo).
+  if (!ready || !user) return null;
 
-  const submitPwd = async (e) => {
+  const trimmed = nameDraft.trim();
+  const nameChanged = trimmed !== user.username;
+
+  const saveName = async (e) => {
     e.preventDefault();
-    setPwdMsg(null);
-    try {
-      await changePassword({
-        email: user.email,
-        currentPassword: curPwd,
-        newPassword: newPwd,
-      });
-      setPwdMsg({ type: "ok", text: t("account.pwd.updated") });
-      setCurPwd("");
-      setNewPwd("");
-      setShowPwd(false);
-    } catch (err) {
-      setPwdMsg({ type: "error", text: err.message });
-    }
-  };
-
-  const confirmDelete = async () => {
-    if (confirmName !== user.username) {
-      setDelError(t("account.delete.nameMismatch"));
+    if (!trimmed) {
+      setNameMsg({ type: "error", text: t("account.name.empty") });
       return;
     }
-    try {
-      await deleteAccount(user.username);
-      await signOut();
-    } catch (err) {
-      setDelError(err.message);
-    }
+    if (!nameChanged) return;
+    await updatePrefs({ username: trimmed });
+    setNameMsg({ type: "ok", text: t("account.saved") });
+  };
+
+  const doReset = () => {
+    reset();
+    setConfirmReset(false);
+    setNameMsg(null);
   };
 
   return (
@@ -78,16 +57,25 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
       <div className="account-card">
         <div className="account-row">
           <span className="account-label">{t("account.user")}</span>
-          <span className="account-value">
-            {user.username}
-            {user.role === "admin" && (
-              <span className="account-role-badge">admin</span>
-            )}
-          </span>
-        </div>
-        <div className="account-row">
-          <span className="account-label">{t("account.email")}</span>
-          <span className="account-value">{user.email}</span>
+          <form className="account-name-form" onSubmit={saveName}>
+            <input
+              className="account-name-input"
+              value={nameDraft}
+              maxLength={MAX_USERNAME}
+              onChange={(e) => {
+                setNameDraft(e.target.value);
+                setNameMsg(null);
+              }}
+              aria-label={t("account.user")}
+            />
+            <button
+              type="submit"
+              className="account-btn account-btn--sm"
+              disabled={!trimmed || !nameChanged}
+            >
+              {t("common.save")}
+            </button>
+          </form>
         </div>
         <div className="account-row">
           <span className="account-label">{t("account.myteam")}</span>
@@ -125,114 +113,41 @@ export default function MyAccount({ myTeam, tz, onTzChange }) {
         </div>
       </div>
 
-      {/* Cambio de contraseña */}
-      {!showPwd ? (
-        <button
-          className="account-btn"
-          onClick={() => {
-            setShowPwd(true);
-            setPwdMsg(null);
-          }}
-        >
-          {t("account.pwd.change")}
-        </button>
-      ) : (
-        <form className="account-form" onSubmit={submitPwd}>
-          <label className="auth-field">
-            <span>{t("account.pwd.current")}</span>
-            <input
-              type="password"
-              value={curPwd}
-              onChange={(e) => setCurPwd(e.target.value)}
-              autoComplete="current-password"
-            />
-          </label>
-          <label className="auth-field">
-            <span>{t("account.pwd.new")}</span>
-            <input
-              type="password"
-              value={newPwd}
-              onChange={(e) => setNewPwd(e.target.value)}
-              autoComplete="new-password"
-            />
-          </label>
-          <div className="account-form-actions">
-            <button
-              type="button"
-              className="account-btn account-btn--ghost"
-              onClick={() => {
-                setShowPwd(false);
-                setCurPwd("");
-                setNewPwd("");
-                setPwdMsg(null);
-              }}
-            >
-              {t("common.cancel")}
-            </button>
-            <button type="submit" className="account-btn">
-              {t("common.save")}
-            </button>
-          </div>
-        </form>
-      )}
-
-      {pwdMsg && (
+      {nameMsg && (
         <p
-          className={
-            pwdMsg.type === "ok" ? "account-msg-ok" : "account-msg-error"
-          }
+          className={nameMsg.type === "ok" ? "account-msg-ok" : "account-msg-error"}
         >
-          {pwdMsg.text}
+          {nameMsg.text}
         </p>
       )}
 
-      <button className="account-btn account-btn--ghost" onClick={signOut}>
-        {t("account.logout")}
-      </button>
+      <p className="account-note">{t("account.local.note")}</p>
 
-      {/* Eliminar cuenta */}
-      {!showDelete ? (
+      {/* Borrar datos locales (equivale a "eliminar cuenta", pero sin cuenta). */}
+      {!confirmReset ? (
         <button
           className="account-btn account-btn--danger"
-          onClick={() => {
-            setShowDelete(true);
-            setConfirmName("");
-            setDelError("");
-          }}
+          onClick={() => setConfirmReset(true)}
         >
-          {t("account.delete")}
+          {t("account.reset")}
         </button>
       ) : (
         <div className="account-danger-box">
-          <p className="account-danger-text">
-            {t("account.delete.warnPre")}
-            <strong>{user.username}</strong>:
-          </p>
-          <input
-            className="account-danger-input"
-            value={confirmName}
-            onChange={(e) => setConfirmName(e.target.value)}
-            placeholder={user.username}
-          />
-          {delError && <p className="account-msg-error">{delError}</p>}
+          <p className="account-danger-text">{t("account.reset.warn")}</p>
           <div className="account-form-actions">
             <button
               type="button"
               className="account-btn account-btn--ghost"
-              onClick={() => {
-                setShowDelete(false);
-                setConfirmName("");
-                setDelError("");
-              }}
+              onClick={() => setConfirmReset(false)}
             >
               {t("common.cancel")}
             </button>
             <button
               type="button"
               className="account-btn account-btn--danger"
-              onClick={confirmDelete}
+              onClick={doReset}
             >
-              {t("account.delete.confirm")}
+              {t("account.reset.confirm")}
             </button>
           </div>
         </div>

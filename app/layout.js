@@ -1,7 +1,6 @@
 import "./globals.css";
-import { AuthProvider } from "../components/AuthContext";
 import { LanguageProvider } from "../components/LanguageContext";
-import { LiveScoresProvider } from "../components/LiveScoresProvider";
+import { ProfileProvider } from "../components/ProfileContext";
 import { SimulationProvider } from "../components/SimulationContext";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -16,11 +15,9 @@ export default function RootLayout({ children }) {
     <html lang="es">
       <body>
         <LanguageProvider>
-          <AuthProvider>
-            <LiveScoresProvider>
-              <SimulationProvider>{children}</SimulationProvider>
-            </LiveScoresProvider>
-          </AuthProvider>
+          <ProfileProvider>
+            <SimulationProvider>{children}</SimulationProvider>
+          </ProfileProvider>
         </LanguageProvider>
         <Analytics />
       </body>

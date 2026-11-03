@@ -1,26 +1,45 @@
 # ⚽ Fixture Mundial 2026
 
 Interactive fixture for the 2026 FIFA World Cup (Canada · Mexico · United States):
-every kickoff in **your** timezone, final scores, favourites, calendar sync and a
-"what if" simulation mode. No ads, no signup, no backend.
+every kickoff in **your** timezone, the full bracket, standings, favourites,
+calendar export and a "what if" simulation mode.
+
+Built for friends during the tournament; now kept online as a portfolio piece.
+No ads, no signup, no backend, no maintenance.
 
 **Live app:** https://fixturemundial.vercel.app/ · **Español:** [README_es.md](./README_es.md)
+
+## History
+
+1. **Dec 2025 – Jun 2026 — a static fixture.** Groups, teams, venues and kickoff
+   times were transcribed from FIFA's calendar into `lib/matches.js` and
+   `lib/knockout.js`. No backend: the whole app was prerendered HTML, and
+   correcting a kickoff time was a one-line diff.
+2. **During the tournament — a backend appeared.** Accounts (email + Google),
+   favourites, "my team" and the four simulation scenarios needed persistence,
+   so Supabase came in: auth, `profiles`, `simulations`, plus a `live_scores`
+   table filled every ~6 minutes by an Edge Function polling football-data.org.
+3. **19 Jul 2026 — the final was played.** Every score moved into `lib/` as a
+   `result` field. That left the live pipeline with nothing to fetch.
+4. **Nov 2026 — the backend left again.** With the tournament over and the free
+   Supabase project paused (and about to be frozen), there was nothing a server
+   could still do. The database was dropped, the profile moved to `localStorage`,
+   a demo profile took its place — and the app went back to being a static site
+   with zero servers, zero keys and zero cost.
+
+The git log keeps the whole arc: the Supabase code is still in the history, and
+no secret or personal data was ever committed.
 
 ## Features
 
 - Group stage (12 groups, 48 teams, 72 matches) and the full knockout bracket (R32 → Final).
 - Kickoff times rendered in the viewer's timezone — device zone by default, or pick from a list of common zones.
 - Final scores and match status (*final, suspended, postponed, cancelled*, plus *live* states if a source is ever wired back in).
-- Standings computed from the results, plus up to 4 **simulation scenarios** that recompute the table and the bracket without ever touching real results.
+- Standings recomputed from the results, plus 4 **simulation scenarios** that overlay hypothetical scores without touching real ones (dormant now: every match is final, so there is nothing left to simulate).
 - Favourites, "my team" and "next match" views.
 - One-click calendar export: Google, Outlook, or a standard `.ics` download.
-- A local profile (name, team, timezone, favourites) that lives in the browser — no account, no password.
+- A local profile (name, team, timezone, favourites) that lives in the browser — no account, no password, seeded with a demo.
 - Interface in English, Spanish and Portuguese.
-
-The 2026 tournament finished on 19 July 2026, so every result is now a final
-score stored in the repository. The live-score pipeline (Supabase + a
-football-data.org Edge Function) was retired along with the database; see
-[Dropping the database](#dropping-the-database) below.
 
 ## Stack
 
@@ -45,7 +64,6 @@ as plain data modules. Scores live on each match as a `result` field.
 
 That means the schedule is versioned, diffable and available on the first paint
 — no loading spinner, no rate limits, no third party in the critical path.
-Correcting a kickoff time or a score is a one-line diff.
 
 ### The timezone model
 
@@ -69,10 +87,15 @@ in `localStorage` and everything hangs off it:
 | `fixture2026.simScenario`  | Which scenario is active                                     |
 | `fixture2026.tz` / `.lang` | Viewing timezone and language                                |
 
-"Mi cuenta" edits the name, team, timezone and language, and can wipe
-everything with one button. The trade-off is deliberate: no password to leak,
-no server to pause — and no sync between devices. Clearing browser data deletes
-the profile.
+The first profile is seeded from `lib/demoProfile.js`: the author's own team and
+favourites with **every personal field stripped** — no name, no email, no id, and
+`timezone: "auto"` so each visitor sees their own clock. It exists so the app
+doesn't open empty.
+
+"Mi cuenta" edits the name, team, timezone and language, and can wipe everything
+with one button (which leaves a blank profile, not the demo again). The trade-off
+is deliberate: no password to leak, no server to pause — and no sync between
+devices. Clearing browser data deletes the profile.
 
 ## Getting started
 
@@ -100,28 +123,25 @@ changing data or formatting never touches a component.
 
 ## Deployment
 
-Push to GitHub and import the repo in Vercel — deploys are automatic and need
-no configuration or secrets.
+Push to GitHub and import the repo in Vercel — deploys are automatic and need no
+configuration or secrets.
 
-## Dropping the database
+## What was removed, and what is left of it
 
-The project used to run on Supabase (auth, profiles, simulation scenarios and a
-live-scores table fed by a Supabase Edge Function). With the tournament over
-there was nothing left for a server to do, so it was removed in favour of
-`localStorage`.
+The Supabase project is **deleted**; Google Cloud (the OAuth client behind "sign
+in with Google") was retired with it. Nothing in the app references either.
 
-The old data was saved as a local `pg_dump` backup and the Supabase project is
-gone. The backup sits in `db/`, which is git-ignored (personal data, and no
-reason to version it). Nothing in the app reads it.
+A local `pg_dump` of the old database was kept in `db/` before deleting it. That
+folder is git-ignored, the app never reads it, and it is optional: it exists only
+as an archive of the accounts that used to exist, and can be deleted whenever.
+Nothing in the repo depends on it.
 
-If you ever need to look inside — who had an account, what scenarios existed —
-the backup is plain SQL: `zcat db/*.backup.gz | less` (or `grep` it). No database,
-no credentials, no tooling.
+Two things worth saying plainly, in case someone reads the code:
 
-The app ships with a **demo profile** (`lib/demoProfile.js`): the author's own
-team and favourites, with every personal field removed. It is seeded once on the
-first visit so the app doesn't open empty; each visitor can then change or wipe
-it locally.
+- No personal data was ever committed. The 32 user emails only ever existed in
+  Supabase and, optionally, in that local, git-ignored dump.
+- The demo profile was derived from the author's own row by hand, removing every
+  identifying field. If you fork this, keep it that way.
 
 ## Data accuracy
 

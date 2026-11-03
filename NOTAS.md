@@ -21,8 +21,9 @@ Estado y pendientes del proyecto. (Arquitectura y detalles técnicos: ver `CLAUD
   guardados en `localStorage`: no hay cuentas ni contraseñas.
 - **Se eliminó Supabase** (auth, `profiles`, `simulations`, `live_scores`, la
   Edge Function `sync-scores` y la ruta de admin). El backup `pg_dump` de la base
-  vieja quedó en `db/` (ignorado por git) y, como es SQL plano, se puede mirar
-  con `zcat db/*.backup.gz | less` — sin base de datos ni credenciales.
+  vieja quedó en `db/` (ignorado por git y **opcional**: se puede borrar cuando
+  quieras). Como es SQL plano, se puede mirar con `zcat db/*.backup.gz | less`
+  — sin base de datos ni credenciales.
 - **Perfil de ejemplo**: la primera visita arranca con equipo y favoritos
   cargados (los del autor, sin ningún dato personal). Ver `lib/demoProfile.js`.
 - Con el torneo terminado no queda ningún partido **simulable** (los 104 tienen
